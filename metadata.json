@@ -1,0 +1,6 @@
+{
+  "name": "HUNAR - Where Skills Meet Opportunity",
+  "description": "Professional job consultancy and talent marketplace platform connecting candidates, employers, and recruiters.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

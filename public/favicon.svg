@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Rounded Squircle Background for High Visibility in Browser Tab -->
+  <rect x="4" y="4" width="112" height="112" rx="26" fill="#062E22" />
+
+  <!-- Star -->
+  <path d="M60 14L62.4 21.6L70 24L62.4 26.4L60 34L57.6 26.4L50 24L57.6 21.6L60 14Z" fill="#F59E0B" />
+
+  <!-- Cap in crisp white -->
+  <polygon points="60,30 96,44 60,58 24,44" fill="#FFFFFF" />
+  <path d="M40 52L40 62C40 66 49 70 60 70C71 70 80 66 80 62L80 52" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Golden Tassel -->
+  <path d="M60 44L88 56L88 70" stroke="#F59E0B" stroke-width="3.5" stroke-linecap="round" />
+  <circle cx="88" cy="72" r="3.5" fill="#F59E0B" />
+
+  <!-- Laurel Arc in Emerald -->
+  <path d="M26 82C32 94 45 100 60 100C75 100 88 94 94 82" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" />
+
+  <!-- "H" Core -->
+  <path d="M53 78L53 92M67 78L67 92M53 85L67 85" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+</svg>
