@@ -33,6 +33,7 @@ import { EmployerJobsPage } from './pages/employer/EmployerJobsPage';
 import { EmployerApplicationsPage } from './pages/employer/EmployerApplicationsPage';
 import { EmployerCompanyProfilePage } from './pages/employer/EmployerCompanyProfilePage';
 import { EmployerAccountPage } from './pages/employer/EmployerAccountPage';
+import { EmployerRegisterPage } from './pages/employer/EmployerRegisterPage';
 import { PostJobPage } from './pages/employer/PostJobPage';
 
 // Admin Portal
@@ -41,10 +42,17 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 function AppContent() {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
   const [routeParams, setRouteParams] = useState<{ id?: string; query?: string; location?: string }>({});
-  const { currentRole, switchRole } = useApp();
+  const { currentRole, currentUser, logout } = useApp();
 
-  // Parse route string with parameters
+  // Route navigation helper
   const navigate = (path: string) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (path === '/#about' || path === '#about') {
+      setCurrentRoute('/about');
+      return;
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (path.startsWith('/jobs/') && path !== '/jobs/') {
@@ -68,12 +76,13 @@ function AppContent() {
     setCurrentRoute(path);
   };
 
-  const isJobSeeker = currentRole === 'job_seeker' || (currentRole as any) === 'candidate';
-  const isEmployer = currentRole === 'employer';
-  const isAdmin = currentRole === 'admin';
+  const isAuthenticated = Boolean(currentUser);
+  const isJobSeeker = isAuthenticated && (currentRole === 'job_seeker' || (currentRole as any) === 'candidate');
+  const isEmployer = isAuthenticated && currentRole === 'employer';
+  const isAdmin = isAuthenticated && currentRole === 'admin';
 
-  // Role Protection Interceptor
-  // 1. Employer-only routes
+  // Role Protection Interceptors:
+  // 1. If Job Seeker tries to access Employer routes
   if (currentRoute.startsWith('/employer') && isJobSeeker) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
@@ -84,9 +93,9 @@ function AppContent() {
             requiredRole="employer"
             currentRole="job_seeker"
             onRedirectToAllowed={() => navigate('/job-seeker/dashboard')}
-            onSwitchRole={() => {
-              switchRole('employer');
-              navigate(currentRoute);
+            onSignOut={() => {
+              logout();
+              navigate('/login');
             }}
           />
         </main>
@@ -96,7 +105,7 @@ function AppContent() {
     );
   }
 
-  // 2. Job Seeker-only routes
+  // 2. If Employer tries to access Job Seeker-only routes
   if (
     (currentRoute.startsWith('/job-seeker') || currentRoute.startsWith('/candidate')) &&
     currentRoute !== '/job-seeker/onboarding' &&
@@ -111,9 +120,9 @@ function AppContent() {
             requiredRole="job_seeker"
             currentRole="employer"
             onRedirectToAllowed={() => navigate('/employer/dashboard')}
-            onSwitchRole={() => {
-              switchRole('job_seeker');
-              navigate(currentRoute);
+            onSignOut={() => {
+              logout();
+              navigate('/login');
             }}
           />
         </main>
@@ -166,10 +175,13 @@ function AppContent() {
       case '/privacy-policy':
         return <PrivacyPolicyPage navigate={navigate} />;
 
-      // Auth & Job Seeker Onboarding
+      // Auth & Onboarding
       case '/register/job-seeker':
       case '/register':
         return <JobSeekerRegisterPage navigate={navigate} />;
+
+      case '/register/employer':
+        return <EmployerRegisterPage navigate={navigate} />;
 
       case '/password-checker':
       case '/security/password-checker':
@@ -182,26 +194,37 @@ function AppContent() {
       case '/signin':
         return <LoginPage navigate={navigate} />;
 
-      // Job Seeker Portal Routes
+      // Job Seeker Portal Dedicated Routes
+      case '/dashboard':
+        return isEmployer ? (
+          <EmployerDashboard navigate={navigate} />
+        ) : (
+          <JobSeekerDashboard navigate={navigate} defaultTab="overview" />
+        );
+
       case '/job-seeker/dashboard':
       case '/candidate/dashboard':
       case '/candidate/interviews':
         return <JobSeekerDashboard navigate={navigate} defaultTab="overview" />;
 
+      case '/applications':
       case '/job-seeker/applications':
-        return <JobSeekerDashboard navigate={navigate} defaultTab="applications" />;
+        return <JobSeekerApplicationsPage navigate={navigate} />;
 
+      case '/saved-jobs':
       case '/job-seeker/saved-jobs':
-        return <JobSeekerDashboard navigate={navigate} defaultTab="saved_jobs" />;
+        return <JobSeekerSavedJobsPage navigate={navigate} />;
 
+      case '/profile':
       case '/job-seeker/profile':
       case '/candidate/profile':
-        return <JobSeekerDashboard navigate={navigate} defaultTab="profile" />;
+        return <JobSeekerProfilePage navigate={navigate} />;
 
+      case '/learning':
       case '/job-seeker/upskill':
         return <JobSeekerUpskillPage navigate={navigate} />;
 
-      // Employer Portal Routes
+      // Employer Portal Dedicated Routes
       case '/employer/dashboard':
         return <EmployerDashboard navigate={navigate} />;
 
@@ -214,6 +237,7 @@ function AppContent() {
       case '/employer/applications':
         return <EmployerApplicationsPage navigate={navigate} />;
 
+      case '/employer/profile':
       case '/employer/company-profile':
         return <EmployerCompanyProfilePage navigate={navigate} />;
 
@@ -256,4 +280,3 @@ export default function App() {
     </AppProvider>
   );
 }
-

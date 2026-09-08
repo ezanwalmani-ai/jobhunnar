@@ -18,21 +18,22 @@ interface PostJobPageProps {
 }
 
 export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
-  const { postJob, showToast } = useApp();
+  const { createJob, currentEmployer, currentUser, showToast } = useApp();
 
   const [title, setTitle] = useState('');
+  const [companyName, setCompanyName] = useState(currentEmployer?.companyName || currentEmployer?.name || '');
   const [department, setDepartment] = useState('Engineering');
-  const [industry, setIndustry] = useState('Cloud Infrastructure & AI');
-  const [location, setLocation] = useState('Bangalore, India');
+  const [industry, setIndustry] = useState(currentEmployer?.industry || 'Technology & Software');
+  const [location, setLocation] = useState(currentEmployer?.location || 'Remote');
   const [workMode, setWorkMode] = useState<'Remote' | 'Hybrid' | 'On-site'>('Hybrid');
   const [employmentType, setEmploymentType] = useState<'Full-time' | 'Part-time' | 'Contract' | 'Internship'>('Full-time');
   const [experienceLevel, setExperienceLevel] = useState<'Fresher' | 'Junior' | 'Mid' | 'Senior'>('Mid');
-  const [minExpYears, setMinExpYears] = useState(3);
-  const [salaryMin, setSalaryMin] = useState(1800000);
-  const [salaryMax, setSalaryMax] = useState(2800000);
+  const [minExpYears, setMinExpYears] = useState(2);
+  const [salaryMin, setSalaryMin] = useState(600000);
+  const [salaryMax, setSalaryMax] = useState(1200000);
   const [salaryCurrency, setSalaryCurrency] = useState<'INR' | 'USD'>('INR');
   const [overview, setOverview] = useState('');
-  const [deadline, setDeadline] = useState('30 Oct 2026');
+  const [deadline, setDeadline] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Dynamic responsibilities
@@ -78,17 +79,17 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
       showToast('error', 'Validation Error', 'Please complete the title and overview.');
       return;
     }
+    const finalCompanyName = companyName.trim() || currentEmployer?.companyName || currentEmployer?.name || 'Hunar Partner Company';
     if (!agreedToTerms) {
       showToast('error', 'Terms Required', 'Please accept the Terms & Conditions and Privacy Policy.');
       return;
     }
 
-    const newJob: Omit<Job, 'id' | 'postedDate' | 'applicantsCount' | 'status'> = {
-      title,
-      employerId: 'emp-1',
-      companyName: 'Apex Cloud Technologies',
-      companyLogo: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=150&auto=format&fit=crop&q=80',
-      isVerifiedCompany: true,
+    const newJob = {
+      title: title.trim(),
+      employerId: currentEmployer?.id || currentUser?.id || 'emp-user',
+      companyName: finalCompanyName,
+      companyLogo: currentEmployer?.logo || '',
       department,
       industry,
       location,
@@ -100,19 +101,19 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
         min: salaryMin,
         max: salaryMax,
         currency: salaryCurrency,
-        period: 'yearly',
+        period: 'yearly' as const,
       },
       overview,
-      responsibilities,
-      requirements,
+      responsibilities: responsibilities.length > 0 ? responsibilities : ['Fulfill core responsibilities as assigned.'],
+      requirements: requirements.length > 0 ? requirements : ['Relevant qualifications and experience.'],
       preferredSkills: skills,
-      benefits: ['Competitive Compensation', 'Comprehensive Health Insurance', 'Remote Work Flexibility'],
-      deadline,
-      featured: true,
-      viewsCount: 0,
+      benefits: ['Competitive Compensation', 'Skill Development', 'Career Growth'],
+      deadline: deadline || undefined,
+      featured: false,
+      status: 'published' as const,
     };
 
-    postJob(newJob);
+    createJob(newJob);
     navigate('/jobs');
   };
 
@@ -137,16 +138,30 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
 
           {/* Basic info */}
           <div className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold text-slate-700">Job Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Lead Frontend Architect, DevOps Engineer..."
-                className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
-                required
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-700">Job Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Lead Frontend Architect, DevOps Engineer..."
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700">Hiring Company Name</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="e.g. Your Organization Name"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  required
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

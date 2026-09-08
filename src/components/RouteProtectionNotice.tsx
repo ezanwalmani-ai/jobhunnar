@@ -1,13 +1,14 @@
 import React from 'react';
-import { ShieldAlert, ArrowRight, RefreshCw, UserCheck } from 'lucide-react';
+import { ShieldAlert, ArrowRight, LogIn } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface RouteProtectionNoticeProps {
-  attemptedRoute: string;
+  attemptedRoute?: string;
+  attemptedRoleText?: string;
   requiredRole: 'job_seeker' | 'employer';
   currentRole: UserRole;
   onRedirectToAllowed: () => void;
-  onSwitchRole: () => void;
+  onSignOut?: () => void;
 }
 
 export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
@@ -15,13 +16,7 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
   requiredRole,
   currentRole,
   onRedirectToAllowed,
-  onSwitchRole,
-}: {
-  attemptedRoleText?: string;
-  requiredRole: 'job_seeker' | 'employer';
-  currentRole: UserRole;
-  onRedirectToAllowed: () => void;
-  onSwitchRole: () => void;
+  onSignOut,
 }) => {
   const isJobSeekerTryingEmployer = requiredRole === 'employer';
   const requiredRoleLabel = requiredRole === 'employer' ? 'Employer' : 'Job Seeker';
@@ -49,9 +44,9 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
         </div>
 
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 text-left space-y-1.5">
-          <div className="font-semibold text-slate-800">Security &amp; Route Isolation:</div>
+          <div className="font-semibold text-slate-800">Security &amp; Role Isolation:</div>
           <p>
-            HUNAR isolates candidate profiles, applications, and recruiter workspaces to ensure strict privacy and role separation.
+            HUNAR isolates candidate profiles, applications, and recruiter workspaces to ensure strict privacy and role separation. You cannot access {requiredRoleLabel} pages while logged in as a {currentRoleLabel}.
           </p>
         </div>
 
@@ -64,15 +59,18 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <button
-            onClick={onSwitchRole}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-            <span>Switch Role to {requiredRoleLabel}</span>
-          </button>
+          {onSignOut && (
+            <button
+              onClick={onSignOut}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5 text-slate-500" />
+              <span>Sign In with Another Account</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
+

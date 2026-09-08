@@ -7,10 +7,15 @@ interface EmployerAccountPageProps {
 }
 
 export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ navigate }) => {
-  const { currentUser, currentEmployer, showToast, switchRole } = useApp();
+  const { currentUser, currentEmployer, showToast, logout } = useApp();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailAlerts, setEmailAlerts] = useState(true);
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -42,11 +47,17 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
         {/* Account Details Card */}
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
-            <img
-              src={currentUser?.avatar || 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=150&auto=format&fit=crop&q=80'}
-              alt={currentUser?.name}
-              className="w-16 h-16 rounded-2xl object-cover border border-slate-200"
-            />
+            {currentUser?.avatar ? (
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-16 h-16 rounded-2xl object-cover border border-slate-200"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl border border-purple-200">
+                {(currentUser?.name || 'E')[0]}
+              </div>
+            )}
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-slate-900">{currentUser?.name}</h2>
@@ -56,30 +67,27 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
               </div>
               <p className="text-xs text-slate-500 mt-0.5">{currentUser?.email}</p>
               <p className="text-xs text-slate-400 mt-0.5">
-                Organization: {currentEmployer?.companyName || 'Apex Cloud Technologies'}
+                Organization: {currentEmployer?.companyName || currentEmployer?.name || 'Configured Organization'}
               </p>
             </div>
           </div>
 
-          {/* Role Status and Switching */}
+          {/* Role Status and Security */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                Active Platform Role: Employer
+                Active Role: Verified Employer
               </span>
               <p className="text-xs text-slate-500 mt-1">
-                You have verified recruiter and hiring manager privileges. Need to apply as a job seeker instead?
+                Employer privileges are active. To switch to a job seeker profile, sign out and authenticate with your job seeker account.
               </p>
             </div>
             <button
-              onClick={() => {
-                switchRole('job_seeker');
-                navigate('/jobs');
-              }}
-              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-emerald-600 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer shrink-0"
+              onClick={handleSignOut}
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-red-400 text-slate-700 hover:text-red-600 text-xs font-semibold shadow-2xs transition-colors cursor-pointer shrink-0"
             >
-              Switch to Job Seeker
+              Sign Out
             </button>
           </div>
 

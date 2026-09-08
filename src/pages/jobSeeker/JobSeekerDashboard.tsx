@@ -44,6 +44,7 @@ export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({
 }) => {
   const {
     currentCandidate,
+    currentUser,
     applications,
     jobs,
     interviews,
@@ -63,55 +64,41 @@ export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({
   const [appFilterStatus, setAppFilterStatus] = useState<string>('All');
   const [appSearchQuery, setAppSearchQuery] = useState('');
 
-  // Profile Form State initialized from current candidate
+  // Profile Form State initialized from current candidate or blank
   const [profileForm, setProfileForm] = useState<CandidateProfile>(
     currentCandidate || {
-      id: 'cand-aarav',
-      userId: 'user-cand-1',
-      name: 'Aarav Sharma',
-      email: 'aarav.sharma@example.com',
-      phone: '+91 98765 43210',
-      headline: 'Senior Full Stack Engineer',
-      location: 'Bangalore, India',
-      yearsOfExperience: 5,
-      experienceLevel: 'Senior',
-      currentRole: 'Senior Full Stack Engineer',
-      desiredRole: 'Lead Frontend Engineer / Full Stack Architect',
-      preferredLocation: 'Bangalore / Remote',
-      workPreference: 'Hybrid',
+      id: currentUser?.id || '',
+      userId: currentUser?.id || '',
+      name: currentUser?.name || '',
+      email: currentUser?.email || '',
+      phone: '',
+      headline: '',
+      location: '',
+      yearsOfExperience: 0,
+      experienceLevel: 'Fresher',
+      currentRole: '',
+      desiredRole: '',
+      preferredLocation: '',
+      workPreference: 'Remote',
       availability: 'Immediate',
       profileVisibility: 'employers_only',
       availableForOpportunities: true,
-      skills: ['React', 'TypeScript', 'Node.js', 'Next.js', 'PostgreSQL', 'Tailwind CSS'],
-      about:
-        'Passionate full-stack developer with 5+ years building high-concurrency web applications, microservices, and design systems.',
-      experiences: [
-        {
-          id: 'exp-1',
-          company: 'HyperScale Systems',
-          jobTitle: 'Senior Frontend Engineer',
-          startDate: '2022',
-          endDate: 'Present',
-          current: true,
-          description: 'Architected high-throughput React/TypeScript dashboards.',
-        },
-      ],
-      education: [
-        {
-          id: 'edu-1',
-          qualification: 'B.Tech in Computer Science',
-          institution: 'National Institute of Technology',
-          fieldOfStudy: 'Computer Science & Engineering',
-          startYear: '2016',
-          endYear: '2020',
-        },
-      ],
+      skills: [],
+      about: '',
+      experiences: [],
+      education: [],
       certifications: [],
-      resumeName: 'Aarav_Sharma_Resume.pdf',
-      completionPercentage: 85,
+      resumeName: '',
+      completionPercentage: 0,
       recommendations: [],
     }
   );
+
+  React.useEffect(() => {
+    if (currentCandidate) {
+      setProfileForm(currentCandidate);
+    }
+  }, [currentCandidate]);
 
   const [newSkill, setNewSkill] = useState('');
 
@@ -218,18 +205,18 @@ export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({
         <div className="bg-gradient-to-r from-[#062e22] via-[#093d2e] to-[#0d4a38] rounded-3xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-2xl text-emerald-300 shadow-inner">
-              {candidate?.name?.charAt(0) || 'A'}
+              {candidate?.name?.charAt(0) || currentUser?.name?.charAt(0) || 'U'}
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold">{candidate?.name || 'Aarav Sharma'}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold">{candidate?.name || currentUser?.name || 'Job Seeker'}</h1>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-xs font-bold text-emerald-300">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   Verified Job Seeker
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-emerald-100/80 mt-1">
-                {candidate?.headline || 'Senior Full Stack Engineer'} &bull; {candidate?.location || 'Bangalore, India'}
+                {candidate?.headline || (candidate?.location ? candidate.location : 'Complete your profile to unlock job matches')}
               </p>
             </div>
           </div>
@@ -501,16 +488,26 @@ export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {recommendedJobs.slice(0, 2).map((job) => (
-                      <JobCard
-                        key={job.id}
-                        job={job}
-                        onApply={(j) => setSelectedJobForApply(j)}
-                        onViewDetails={(id) => navigate(`/jobs/${id}`)}
-                      />
-                    ))}
-                  </div>
+                  {recommendedJobs.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {recommendedJobs.slice(0, 2).map((job) => (
+                        <JobCard
+                          key={job.id}
+                          job={job}
+                          onApply={(j) => setSelectedJobForApply(j)}
+                          onViewDetails={(id) => navigate(`/jobs/${id}`)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-500 space-y-2">
+                      <Briefcase className="w-8 h-8 text-slate-400 mx-auto" />
+                      <p className="font-semibold text-slate-800">No matching recommendations right now</p>
+                      <p className="text-slate-500 max-w-sm mx-auto">
+                        We're preparing new opportunities. Verified openings published by employers will appear here automatically.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

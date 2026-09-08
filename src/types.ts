@@ -137,11 +137,27 @@ export interface Job {
   benefits: string[];
   deadline: string;
   postedDate: string;
-  status: 'published' | 'draft' | 'paused' | 'closed';
+  status: 'published' | 'draft' | 'paused' | 'closed' | 'archived';
   applicantsCount: number;
   viewsCount: number;
   isVerifiedCompany: boolean;
   featured?: boolean;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  category: string;
+  level: 'Foundational' | 'Intermediate' | 'Advanced';
+  modules: number;
+  duration: string;
+  badge?: string;
+  description: string;
+  instructor?: string;
+  provider?: string;
+  skillsCovered: string[];
+  status: 'published' | 'draft' | 'archived';
+  createdAt: string;
 }
 
 export type ApplicationStatus = 

@@ -12,37 +12,26 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [selectedAccount, setSelectedAccount] = useState<string>('ezan');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const accounts = [
-    {
-      id: 'ezan',
-      name: 'Ezan Walmani',
-      email: 'ezanwalmani@gmail.com',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'aarav',
-      name: 'Aarav Sharma',
-      email: 'aarav.sharma@example.com',
-      avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80',
-    },
-  ];
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) return;
 
-  const handleChoose = (account: typeof accounts[0]) => {
     setIsSubmitting(true);
     setTimeout(() => {
       onSuccess({
-        name: account.name,
-        email: account.email,
-        avatar: account.avatar,
+        name: name.trim(),
+        email: email.trim(),
+        avatar: '',
       });
       setIsSubmitting(false);
       onClose();
-    }, 600);
+    }, 400);
   };
 
   return (
@@ -82,41 +71,48 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
           </button>
         </div>
 
-        {/* Account List */}
-        <div className="p-6 space-y-3">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Choose an account</p>
+        {/* Account Entry Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <p className="text-xs font-medium text-slate-500">Sign in with your Google credentials</p>
 
-          <div className="space-y-2">
-            {accounts.map((acc) => (
-              <button
-                key={acc.id}
-                onClick={() => handleChoose(acc)}
-                disabled={isSubmitting}
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-left group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={acc.avatar}
-                    alt={acc.name}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                  />
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900 group-hover:text-emerald-950">
-                      {acc.name}
-                    </div>
-                    <div className="text-xs text-slate-500">{acc.email}</div>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-700 transition-colors" />
-              </button>
-            ))}
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. John Doe"
+                required
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:border-emerald-600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Google Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@gmail.com"
+                required
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:border-emerald-600"
+              />
+            </div>
           </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting || !name || !email}
+            className="w-full py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] disabled:opacity-50 text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+          >
+            {isSubmitting ? 'Authenticating...' : 'Continue with Google'}
+          </button>
 
           <div className="pt-2 text-[11px] text-slate-400 text-center leading-relaxed">
-            To continue, Google will share your name, email address, language preference, and profile picture with HUNAR. See HUNAR's{' '}
+            To continue, Google will share your name and email address with HUNAR. See HUNAR's{' '}
             <span className="text-emerald-700 font-medium">Privacy Policy</span>.
           </div>
-        </div>
+        </form>
 
         {isSubmitting && (
           <div className="p-4 bg-emerald-50 border-t border-emerald-100 flex items-center justify-center gap-2 text-xs font-semibold text-emerald-900">

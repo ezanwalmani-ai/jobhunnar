@@ -9,6 +9,7 @@ interface HunarLogoProps {
   theme?: LogoTheme;
   size?: LogoSize;
   showTagline?: boolean;
+  taglineClassName?: string;
   transparentBg?: boolean;
   className?: string;
 }
@@ -337,6 +338,7 @@ export const HunarLogo: React.FC<HunarLogoProps> = ({
   theme = 'dark',
   size = 'md',
   showTagline = false,
+  taglineClassName = '',
   transparentBg = true,
   className = '',
 }) => {
@@ -529,7 +531,7 @@ export const HunarLogo: React.FC<HunarLogoProps> = ({
         </span>
         {(showTagline || variant === 'primary') && (
           <span
-            className={`font-bold uppercase tracking-wider mt-1 whitespace-nowrap ${sizeConfig.tagline}`}
+            className={`font-bold uppercase tracking-wider mt-0.5 sm:mt-1 whitespace-nowrap ${sizeConfig.tagline} ${taglineClassName || ''}`}
             style={{ color: secondaryTextColor }}
           >
             Where Skills Meet Opportunity

@@ -30,6 +30,8 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ navigate }
     updateApplicationStatus,
     candidates,
     interviews,
+    currentEmployer,
+    currentUser,
     currentRole,
   } = useApp();
 
@@ -48,7 +50,8 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ navigate }
     return true;
   });
 
-  const employerJobs = jobs; // Apex Cloud & others
+  const employerJobs = jobs; // Filtered to current organization
+  const orgName = currentEmployer?.companyName || currentEmployer?.name || currentUser?.name || 'Partner Organization';
 
   const statusOptions = [
     { value: 'All', label: 'All Statuses' },
@@ -72,7 +75,7 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ navigate }
                 Verified Employer Portal
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold mt-2">Apex Cloud Technologies &bull; Recruitment Hub</h1>
+            <h1 className="text-xl sm:text-2xl font-bold mt-2">{orgName} &bull; Recruitment Hub</h1>
             <p className="text-xs sm:text-sm text-emerald-100/80 mt-0.5">
               Manage open positions, review verified candidates, and organize interview stages.
             </p>
@@ -305,38 +308,54 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ navigate }
         {/* TAB 2: MY JOB OPENINGS */}
         {activeTab === 'jobs' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {employerJobs.map((job) => (
-                <div key={job.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{job.department}</span>
-                      <h3 className="text-base font-bold text-slate-900 mt-1">{job.title}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">{job.location} &bull; {job.workMode}</p>
+            {employerJobs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {employerJobs.map((job) => (
+                  <div key={job.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{job.department}</span>
+                        <h3 className="text-base font-bold text-slate-900 mt-1">{job.title}</h3>
+                        <p className="text-xs text-slate-500 mt-0.5">{job.location} &bull; {job.workMode}</p>
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                          job.status === 'published'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {job.status}
+                      </span>
                     </div>
-                    <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                        job.status === 'published'
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                  </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-700">{job.applicantsCount} Applicants</span>
-                    <button
-                      onClick={() => navigate(`/jobs/${job.id}`)}
-                      className="text-emerald-800 hover:text-emerald-950 font-bold"
-                    >
-                      View Posting
-                    </button>
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700">{job.applicantsCount} Applicants</span>
+                      <button
+                        onClick={() => navigate(`/jobs/${job.id}`)}
+                        className="text-emerald-800 hover:text-emerald-950 font-bold"
+                      >
+                        View Posting
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 text-xs text-slate-500 space-y-3">
+                <Briefcase className="w-10 h-10 text-slate-400 mx-auto" />
+                <h4 className="text-base font-bold text-slate-900">No opportunities posted yet</h4>
+                <p className="text-slate-500 max-w-sm mx-auto">
+                  You haven't posted any job openings. Publish your first opening to attract skill-verified applicants.
+                </p>
+                <button
+                  onClick={() => navigate('/employer/post-job')}
+                  className="px-5 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white font-bold cursor-pointer transition-colors"
+                >
+                  + Post New Job
+                </button>
+              </div>
+            )}
           </div>
         )}
 

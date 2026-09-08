@@ -21,7 +21,7 @@ interface ApplyModalProps {
 }
 
 export const ApplyModal: React.FC<ApplyModalProps> = ({ job, isOpen, onClose, navigate }) => {
-  const { currentCandidate, currentRole, loginAs, applyToJob } = useApp();
+  const { currentCandidate, currentRole, currentUser, logout, applyToJob } = useApp();
   const [coverNote, setCoverNote] = useState('');
   const [selectedResume, setSelectedResume] = useState(
     currentCandidate?.resumeName || 'Aarav_Sharma_FullStack_Resume.pdf'
@@ -32,6 +32,8 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ job, isOpen, onClose, na
 
   if (!isOpen || !job) return null;
 
+  const isEmployer = currentUser && currentRole === 'employer';
+  const isJobSeeker = currentUser && (currentRole === 'job_seeker' || (currentRole as any) === 'candidate');
   const candidate = currentCandidate;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,6 +55,21 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ job, isOpen, onClose, na
   };
 
   const handleOpenLegal = (route: string) => {
+    handleClose();
+    if (navigate) {
+      navigate(route);
+    }
+  };
+
+  const handleSignOutAndLogin = () => {
+    handleClose();
+    logout();
+    if (navigate) {
+      navigate('/login');
+    }
+  };
+
+  const handleNavigateTo = (route: string) => {
     handleClose();
     if (navigate) {
       navigate(route);
@@ -122,18 +139,52 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ job, isOpen, onClose, na
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            {/* Role Check */}
-            {!candidate ? (
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
-                <p className="font-bold">You are currently browsing as an Employer or Admin.</p>
-                <p>Switch to your job seeker profile to apply using your saved profile credentials.</p>
-                <button
-                  type="button"
-                  onClick={() => loginAs('candidate')}
-                  className="px-3 py-1.5 rounded-lg bg-amber-800 text-white font-semibold cursor-pointer"
-                >
-                  Continue with My Profile
-                </button>
+            {/* Role & Auth Check */}
+            {isEmployer ? (
+              <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-3">
+                <div className="font-bold text-sm text-amber-950">Employer Account Detected</div>
+                <p className="leading-relaxed">
+                  You are currently logged in with an <strong>Employer</strong> account. Submitting job applications is reserved for Job Seekers. To apply for this role, please sign out and sign in with your Job Seeker account.
+                </p>
+                <div className="pt-1 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSignOutAndLogin}
+                    className="px-4 py-2 rounded-xl bg-amber-800 hover:bg-amber-900 text-white font-bold cursor-pointer transition-colors"
+                  >
+                    Sign In with Job Seeker Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="px-3 py-2 rounded-xl bg-white border border-amber-300 text-amber-900 font-semibold cursor-pointer hover:bg-amber-100/50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : !currentUser ? (
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-3">
+                <div className="font-bold text-sm text-slate-900">Sign In to Apply</div>
+                <p className="leading-relaxed">
+                  You must be registered as a Job Seeker to apply for this opening with your verified credentials and resume.
+                </p>
+                <div className="pt-1 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateTo('/login')}
+                    className="px-4 py-2 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white font-bold cursor-pointer transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateTo('/register/job-seeker')}
+                    className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold hover:bg-slate-100 cursor-pointer"
+                  >
+                    Register as Job Seeker
+                  </button>
+                </div>
               </div>
             ) : (
               <>

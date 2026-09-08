@@ -32,7 +32,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
               Manage Jobs
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Active openings, applicant pipelines, and publishing controls for {currentEmployer?.companyName || 'Apex Cloud Technologies'}.
+              Active openings, applicant pipelines, and publishing controls for {currentEmployer?.companyName || 'your organization'}.
             </p>
           </div>
 
@@ -72,8 +72,15 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
           {filteredJobs.length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <Briefcase className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-semibold text-slate-700">No jobs found</p>
+              <p className="text-sm font-semibold text-slate-700">No jobs posted yet.</p>
               <p className="text-xs text-slate-500">Post a new position or adjust the status filter above.</p>
+              <button
+                onClick={() => navigate('/employer/post-job')}
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#062e22] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Create Your First Job Posting</span>
+              </button>
             </div>
           ) : (
             filteredJobs.map((job) => {

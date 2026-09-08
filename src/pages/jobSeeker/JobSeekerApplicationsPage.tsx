@@ -120,15 +120,15 @@ export const JobSeekerApplicationsPage: React.FC<JobSeekerApplicationsPageProps>
           {filteredApps.length === 0 ? (
             <div className="p-12 text-center space-y-3">
               <Briefcase className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-semibold text-slate-700">No applications found</p>
+              <p className="text-sm font-semibold text-slate-700">You haven't applied to any jobs yet.</p>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {searchQuery || filterStatus !== 'All'
                   ? 'Try clearing your search or status filters.'
-                  : 'You have not submitted any applications yet. Browse verified openings to get started.'}
+                  : 'Browse verified openings matching your skills to start your career journey.'}
               </p>
               <button
                 onClick={() => navigate('/jobs')}
-                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors cursor-pointer"
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#062e22] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer"
               >
                 Browse Open Jobs
               </button>

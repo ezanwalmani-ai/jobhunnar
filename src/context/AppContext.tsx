@@ -5,6 +5,7 @@ import {
   CandidateProfile,
   EmployerProfile,
   Job,
+  Course,
   Application,
   ApplicationStatus,
   Interview,
@@ -17,6 +18,7 @@ import {
   INITIAL_CANDIDATES,
   INITIAL_COMPANIES,
   INITIAL_JOBS,
+  INITIAL_COURSES,
   INITIAL_APPLICATIONS,
   INITIAL_INTERVIEWS,
   INITIAL_NOTIFICATIONS,
@@ -41,6 +43,7 @@ interface AppContextType {
   candidates: CandidateProfile[];
   companies: EmployerProfile[];
   jobs: Job[];
+  courses: Course[];
   applications: Application[];
   interviews: Interview[];
   notifications: NotificationItem[];
@@ -51,7 +54,7 @@ interface AppContextType {
 
   // Auth & Role
   loginAs: (role: UserRole) => void;
-  loginWithEmail: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithEmail: (email: string, password?: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   registerJobSeeker: (data: {
     name: string;
     email: string;
@@ -66,6 +69,17 @@ interface AppContextType {
     avatar?: string;
     isGoogle?: boolean;
   }) => Promise<{ success: boolean; error?: string; user?: User; candidate?: CandidateProfile }>;
+  registerEmployer: (data: {
+    name: string;
+    email: string;
+    companyName: string;
+    phone?: string;
+    password?: string;
+    industry?: string;
+    location?: string;
+    website?: string;
+    companySize?: string;
+  }) => Promise<{ success: boolean; error?: string; user?: User; employer?: EmployerProfile }>;
   logout: () => void;
   switchRole: (role: UserRole) => void;
   updateUserStatus: (userId: string, status: 'active' | 'suspended') => void;
@@ -76,14 +90,21 @@ interface AppContextType {
   unsaveJob: (jobId: string) => void;
   applyToJob: (jobId: string, coverNote?: string, selectedResume?: string) => Promise<boolean>;
 
-  // Employer Actions
+  // Employer / Job Actions
   createJob: (newJob: Omit<Job, 'id' | 'postedDate' | 'applicantsCount' | 'viewsCount' | 'isVerifiedCompany'>) => Job;
   updateJob: (jobId: string, updates: Partial<Job>) => void;
+  deleteJob: (jobId: string) => void;
   updateJobStatus: (jobId: string, status: Job['status']) => void;
   updateEmployerProfile: (updates: Partial<EmployerProfile>) => void;
   updateApplicationStatus: (applicationId: string, status: ApplicationStatus, note?: string) => void;
   scheduleInterview: (interviewData: Omit<Interview, 'id'>) => Interview;
   inviteCandidateToApply: (candidateId: string, jobId: string) => void;
+
+  // Course / Learning Actions (Admin Managed)
+  createCourse: (data: Omit<Course, 'id' | 'createdAt'>) => Course;
+  updateCourse: (courseId: string, updates: Partial<Course>) => void;
+  deleteCourse: (courseId: string) => void;
+  updateCourseStatus: (courseId: string, status: Course['status']) => void;
 
   // Admin Actions
   verifyEmployer: (employerId: string, status: 'verified' | 'rejected') => void;
@@ -104,7 +125,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Initial State from localStorage or default mocks
+  // 1. Initial State from localStorage or default mocks (No fake marketplace data)
   const [currentUser, setCurrentUser] = useState<User>(() => {
     try {
       const stored = localStorage.getItem('hunar_currentUser');
@@ -116,7 +137,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       // fallback
     }
-    return INITIAL_USERS[0]; // default to Job Seeker
+    return INITIAL_USERS[0]; // default to Admin
   });
 
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
@@ -138,62 +159,127 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [candidates, setCandidates] = useState<CandidateProfile[]>(() => {
-    const stored = localStorage.getItem('hunar_candidates');
-    return stored ? JSON.parse(stored) : INITIAL_CANDIDATES;
+    try {
+      const stored = localStorage.getItem('hunar_candidates');
+      if (stored) {
+        const list: CandidateProfile[] = JSON.parse(stored);
+        return list.filter((c) => !['cand-1', 'cand-2', 'cand-3', 'cand-4', 'cand-5', 'cand-aarav'].includes(c.id));
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_CANDIDATES;
   });
 
   const [companies, setCompanies] = useState<EmployerProfile[]>(() => {
     try {
       const stored = localStorage.getItem('hunar_companies');
-      const list = stored ? JSON.parse(stored) : INITIAL_COMPANIES;
-      return list.map((c: any) => ({
-        ...c,
-        name: c.companyName || c.name || '',
-        companyName: c.companyName || c.name || '',
-        size: c.companySize || c.size || '',
-        companySize: c.companySize || c.size || '',
-        description: c.about || c.description || '',
-        about: c.about || c.description || '',
-        verified: c.verificationStatus === 'verified' || c.verified,
-      }));
+      if (stored) {
+        const list = JSON.parse(stored);
+        const filtered = list.filter((c: any) => !['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5'].includes(c.id));
+        return filtered.map((c: any) => ({
+          ...c,
+          name: c.companyName || c.name || '',
+          companyName: c.companyName || c.name || '',
+          size: c.companySize || c.size || '',
+          companySize: c.companySize || c.size || '',
+          description: c.about || c.description || '',
+          about: c.about || c.description || '',
+          verified: c.verificationStatus === 'verified' || c.verified,
+        }));
+      }
     } catch {
-      return INITIAL_COMPANIES;
+      // fallback
     }
+    return INITIAL_COMPANIES;
   });
 
   const [jobs, setJobs] = useState<Job[]>(() => {
-    const stored = localStorage.getItem('hunar_jobs');
-    return stored ? JSON.parse(stored) : INITIAL_JOBS;
+    try {
+      const stored = localStorage.getItem('hunar_jobs');
+      if (stored) {
+        const list: Job[] = JSON.parse(stored);
+        return list.filter((j) => !['job-1', 'job-2', 'job-3', 'job-4', 'job-5'].includes(j.id));
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_JOBS;
+  });
+
+  const [courses, setCourses] = useState<Course[]>(() => {
+    try {
+      const stored = localStorage.getItem('hunar_courses');
+      return stored ? JSON.parse(stored) : INITIAL_COURSES;
+    } catch {
+      return INITIAL_COURSES;
+    }
   });
 
   const [applications, setApplications] = useState<Application[]>(() => {
-    const stored = localStorage.getItem('hunar_applications');
-    return stored ? JSON.parse(stored) : INITIAL_APPLICATIONS;
+    try {
+      const stored = localStorage.getItem('hunar_applications');
+      if (stored) {
+        const list: Application[] = JSON.parse(stored);
+        return list.filter((a) => !['app-1', 'app-2', 'app-3', 'app-4'].includes(a.id));
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_APPLICATIONS;
   });
 
   const [interviews, setInterviews] = useState<Interview[]>(() => {
-    const stored = localStorage.getItem('hunar_interviews');
-    return stored ? JSON.parse(stored) : INITIAL_INTERVIEWS;
+    try {
+      const stored = localStorage.getItem('hunar_interviews');
+      if (stored) {
+        const list: Interview[] = JSON.parse(stored);
+        return list.filter((i) => !['int-1', 'int-2', 'int-3'].includes(i.id));
+      }
+    } catch {
+      // fallback
+    }
+    return INITIAL_INTERVIEWS;
   });
 
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
-    const stored = localStorage.getItem('hunar_notifications');
-    return stored ? JSON.parse(stored) : INITIAL_NOTIFICATIONS;
+    try {
+      const stored = localStorage.getItem('hunar_notifications');
+      return stored ? JSON.parse(stored) : INITIAL_NOTIFICATIONS;
+    } catch {
+      return INITIAL_NOTIFICATIONS;
+    }
   });
 
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(() => {
-    const stored = localStorage.getItem('hunar_supportTickets');
-    return stored ? JSON.parse(stored) : INITIAL_SUPPORT_TICKETS;
+    try {
+      const stored = localStorage.getItem('hunar_supportTickets');
+      return stored ? JSON.parse(stored) : INITIAL_SUPPORT_TICKETS;
+    } catch {
+      return INITIAL_SUPPORT_TICKETS;
+    }
   });
 
   const [analyticsEvents, setAnalyticsEvents] = useState<AnalyticsEvent[]>(() => {
-    const stored = localStorage.getItem('hunar_analytics');
-    return stored ? JSON.parse(stored) : INITIAL_ANALYTICS;
+    try {
+      const stored = localStorage.getItem('hunar_analytics');
+      return stored ? JSON.parse(stored) : INITIAL_ANALYTICS;
+    } catch {
+      return INITIAL_ANALYTICS;
+    }
   });
 
   const [savedJobIds, setSavedJobIds] = useState<string[]>(() => {
-    const stored = localStorage.getItem('hunar_savedJobs');
-    return stored ? JSON.parse(stored) : ['job-1', 'job-3'];
+    try {
+      const stored = localStorage.getItem('hunar_savedJobs');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed.filter((id) => !['job-1', 'job-2', 'job-3', 'job-4', 'job-5'].includes(id)) : [];
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   });
 
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
@@ -214,6 +300,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('hunar_jobs', JSON.stringify(jobs));
   }, [jobs]);
+
+  useEffect(() => {
+    localStorage.setItem('hunar_courses', JSON.stringify(courses));
+  }, [courses]);
 
   useEffect(() => {
     localStorage.setItem('hunar_applications', JSON.stringify(applications));
@@ -237,13 +327,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Derived current profiles
   const currentCandidate =
-    candidates.find((c) => c.userId === currentUser.id) ||
-    candidates.find((c) => c.email.toLowerCase() === currentUser.email.toLowerCase()) ||
-    (currentRole === 'job_seeker' || currentRole === 'candidate' ? candidates[0] : null);
+    (currentUser
+      ? candidates.find((c) => c.userId === currentUser.id || c.email.toLowerCase() === currentUser.email.toLowerCase())
+      : null) || null;
 
   const currentEmployer =
-    companies.find((e) => e.userId === currentUser.id) ||
-    (currentRole === 'employer' ? companies[0] : null);
+    (currentUser
+      ? companies.find((e) => e.userId === currentUser.id || (e.recruiterEmail && e.recruiterEmail.toLowerCase() === currentUser.email.toLowerCase()))
+      : null) || null;
 
   // Toast System
   const showToast = (type: ToastInfo['type'], title: string, message?: string) => {
@@ -292,7 +383,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginWithEmail = async (
     email: string,
     password?: string
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; user?: User }> => {
     const trimmed = email.trim().toLowerCase();
     const user = users.find((u) => u.email.toLowerCase() === trimmed);
     if (!user) {
@@ -307,7 +398,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentRole(normalizedRole);
     showToast('success', `Welcome back, ${user.name}!`, `Signed in as ${user.email}`);
     trackEvent('user_login', { method: 'email', role: normalizedRole });
-    return { success: true };
+    return { success: true, user: updatedUser };
   };
 
   const registerJobSeeker = async (data: {
@@ -420,14 +511,94 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { success: true, user: newUser, candidate: newCandidate };
   };
 
+  const registerEmployer = async (data: {
+    name: string;
+    email: string;
+    companyName: string;
+    phone?: string;
+    password?: string;
+    industry?: string;
+    location?: string;
+    website?: string;
+    companySize?: string;
+  }): Promise<{ success: boolean; error?: string; user?: User; employer?: EmployerProfile }> => {
+    const trimmedEmail = data.email.trim().toLowerCase();
+    const existingUser = users.find((u) => u.email.toLowerCase() === trimmedEmail);
+    if (existingUser) {
+      return {
+        success: false,
+        error: 'An account with this email address already exists. Please sign in instead.',
+      };
+    }
+
+    const newUserId = 'user-emp-' + Date.now();
+    const newUser: User = {
+      id: newUserId,
+      name: data.name.trim(),
+      email: trimmedEmail,
+      role: 'employer',
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.companyName)}&backgroundColor=062e22`,
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0],
+      lastActive: 'Just now',
+    };
+
+    const newEmployerId = 'emp-' + Date.now();
+    const newEmployer: EmployerProfile = {
+      id: newEmployerId,
+      userId: newUserId,
+      name: data.companyName.trim(),
+      companyName: data.companyName.trim(),
+      industry: data.industry || 'Technology & Services',
+      location: data.location || 'India',
+      website: data.website || '',
+      companySize: data.companySize || '11-50',
+      size: data.companySize || '11-50',
+      recruiterName: data.name.trim(),
+      recruiterRole: 'Hiring Manager',
+      recruiterEmail: trimmedEmail,
+      recruiterPhone: '',
+      about: `Verified organization account for ${data.companyName.trim()}.`,
+      description: `Verified organization account for ${data.companyName.trim()}.`,
+      benefits: ['Competitive Compensation', 'Health Coverage', 'Growth Opportunities'],
+      culture: 'Skill-driven, collaborative, and forward-thinking.',
+      socialLinks: {},
+      verified: true,
+      verificationStatus: 'verified',
+      activeJobsCount: 0,
+      logo: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.companyName)}&backgroundColor=062e22`,
+    };
+
+    const updatedUsers = [...users, newUser];
+    const updatedCompanies = [...companies, newEmployer];
+
+    setUsers(updatedUsers);
+    setCompanies(updatedCompanies);
+    setCurrentUser(newUser);
+    setCurrentRole('employer');
+
+    try {
+      localStorage.setItem('hunar_users', JSON.stringify(updatedUsers));
+      localStorage.setItem('hunar_companies', JSON.stringify(updatedCompanies));
+      localStorage.setItem('hunar_currentUser', JSON.stringify(newUser));
+    } catch {
+      // fallback
+    }
+
+    showToast('success', 'Employer Account Created', `Welcome to HUNAR Employer Hub, ${data.name}!`);
+    trackEvent('employer_register', { email: trimmedEmail, company: data.companyName });
+
+    return { success: true, user: newUser, employer: newEmployer };
+  };
+
   const switchRole = (role: UserRole) => {
     loginAs(role);
   };
 
   const logout = () => {
-    setCurrentUser(INITIAL_USERS[0]);
+    setCurrentUser(null as any);
     setCurrentRole('job_seeker');
-    showToast('info', 'Signed Out', 'You have been signed out.');
+    showToast('info', 'Signed Out', 'You have been signed out successfully.');
   };
 
   const updateUserStatus = (userId: string, status: 'active' | 'suspended') => {
@@ -604,9 +775,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('info', 'Job Updated', 'Job posting details have been refreshed.');
   };
 
+  const deleteJob = (jobId: string) => {
+    setJobs((prev) => prev.filter((j) => j.id !== jobId));
+    setSavedJobIds((prev) => prev.filter((id) => id !== jobId));
+    showToast('info', 'Job Deleted', 'The job opening has been removed.');
+  };
+
   const updateJobStatus = (jobId: string, status: Job['status']) => {
     setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status } : j)));
     showToast('info', 'Status Changed', `Job listing is now ${status}.`);
+  };
+
+  const createCourse = (newCourseData: Omit<Course, 'id' | 'createdAt'>): Course => {
+    const newCourse: Course = {
+      ...newCourseData,
+      id: 'crs-' + Date.now(),
+      createdAt: new Date().toISOString().substring(0, 10),
+    };
+    setCourses((prev) => [newCourse, ...prev]);
+    showToast('success', 'Course Created', `Course "${newCourse.title}" created (${newCourse.status}).`);
+    return newCourse;
+  };
+
+  const updateCourse = (courseId: string, updates: Partial<Course>) => {
+    setCourses((prev) => prev.map((c) => (c.id === courseId ? { ...c, ...updates } : c)));
+    showToast('info', 'Course Updated', 'Course information has been updated.');
+  };
+
+  const updateCourseStatus = (courseId: string, status: Course['status']) => {
+    setCourses((prev) => prev.map((c) => (c.id === courseId ? { ...c, status } : c)));
+    showToast('info', 'Course Status', `Course is now ${status}.`);
+  };
+
+  const deleteCourse = (courseId: string) => {
+    setCourses((prev) => prev.filter((c) => c.id !== courseId));
+    showToast('info', 'Course Deleted', 'Course has been removed.');
   };
 
   const updateEmployerProfile = (updates: Partial<EmployerProfile>) => {
@@ -859,6 +1062,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         candidates,
         companies,
         jobs,
+        courses,
         applications,
         interviews,
         notifications,
@@ -869,6 +1073,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginAs,
         loginWithEmail,
         registerJobSeeker,
+        registerEmployer,
         logout,
         switchRole,
         updateUserStatus,
@@ -878,7 +1083,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         applyToJob,
         createJob,
         updateJob,
+        deleteJob,
         updateJobStatus,
+        createCourse,
+        updateCourse,
+        updateCourseStatus,
+        deleteCourse,
         updateEmployerProfile,
         updateApplicationStatus,
         scheduleInterview,

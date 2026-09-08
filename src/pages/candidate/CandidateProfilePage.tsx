@@ -26,75 +26,42 @@ interface CandidateProfilePageProps {
 }
 
 export const CandidateProfilePage: React.FC<CandidateProfilePageProps> = ({ navigate }) => {
-  const { currentCandidate, updateCandidateProfile, showToast } = useApp();
+  const { currentCandidate, currentUser, updateCandidateProfile, showToast } = useApp();
 
   const [formData, setFormData] = useState<CandidateProfile>(
     currentCandidate || {
-      id: 'cand-aarav',
-      userId: 'user-cand-1',
-      name: 'Aarav Sharma',
-      email: 'aarav.sharma@example.com',
-      phone: '+91 98765 43210',
-      headline: 'Senior Full Stack Engineer',
-      location: 'Bangalore, India',
-      yearsOfExperience: 5,
-      experienceLevel: 'Senior',
-      currentRole: 'Senior Full Stack Engineer',
-      desiredRole: 'Lead Frontend Engineer / Full Stack Architect',
-      preferredLocation: 'Bangalore / Remote',
-      workPreference: 'Hybrid',
+      id: currentUser?.id || 'cand-user',
+      userId: currentUser?.id || 'user-cand',
+      name: currentUser?.name || '',
+      email: currentUser?.email || '',
+      phone: '',
+      headline: '',
+      location: '',
+      yearsOfExperience: 0,
+      experienceLevel: 'Fresher',
+      currentRole: '',
+      desiredRole: '',
+      preferredLocation: '',
+      workPreference: 'Remote',
       availability: 'Immediate',
       profileVisibility: 'employers_only',
       availableForOpportunities: true,
-      skills: ['React', 'TypeScript', 'Node.js', 'Next.js', 'PostgreSQL', 'Tailwind CSS'],
-      about:
-        'Passionate full-stack developer with 5+ years building high-concurrency web applications, microservices, and design systems. Dedicated to code elegance, developer tooling, and user-centric architecture.',
-      experiences: [
-        {
-          id: 'exp-1',
-          company: 'HyperScale Systems',
-          jobTitle: 'Senior Frontend Engineer',
-          startDate: '2022',
-          endDate: 'Present',
-          current: true,
-          description:
-            'Architected high-throughput React/TypeScript dashboards and component libraries. Cut cold boot bundle load time by 42%.',
-        },
-        {
-          id: 'exp-2',
-          company: 'CognitiveWave Labs',
-          jobTitle: 'Software Developer',
-          startDate: '2020',
-          endDate: '2022',
-          current: false,
-          description:
-            'Built responsive client interfaces, state synchronization engines, and automated end-to-end integration test suites.',
-        },
-      ],
-      education: [
-        {
-          id: 'edu-1',
-          qualification: 'B.Tech in Computer Science',
-          institution: 'National Institute of Technology',
-          fieldOfStudy: 'Computer Science & Engineering',
-          startYear: '2016',
-          endYear: '2020',
-        },
-      ],
-      certifications: [
-        {
-          id: 'cert-1',
-          title: 'AWS Certified Solutions Architect',
-          issuer: 'Amazon Web Services',
-          issueDate: '2023',
-          credentialUrl: 'https://aws.amazon.com/verification',
-        },
-      ],
-      resumeName: 'Aarav_Sharma_FullStack_Resume.pdf',
-      completionPercentage: 95,
+      skills: [],
+      about: '',
+      experiences: [],
+      education: [],
+      certifications: [],
+      resumeName: '',
+      completionPercentage: 0,
       recommendations: [],
     }
   );
+
+  React.useEffect(() => {
+    if (currentCandidate) {
+      setFormData(currentCandidate);
+    }
+  }, [currentCandidate]);
 
   const [newSkill, setNewSkill] = useState('');
 

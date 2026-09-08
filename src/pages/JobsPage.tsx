@@ -436,7 +436,17 @@ export const JobsPage: React.FC<JobsPageProps> = ({
             </h2>
           </div>
 
-          {filteredJobs.length === 0 ? (
+          {jobs.length === 0 ? (
+            <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">No jobs available yet.</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                New verified positions are published regularly. Please check back shortly or create your profile to receive alerts.
+              </p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
             <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />

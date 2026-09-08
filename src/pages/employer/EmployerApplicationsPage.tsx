@@ -105,7 +105,15 @@ export const EmployerApplicationsPage: React.FC<EmployerApplicationsPageProps> =
 
         {/* Applications List */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
-          {filteredApps.length === 0 ? (
+          {applications.length === 0 ? (
+            <div className="p-12 text-center space-y-3">
+              <Users className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-slate-700">No applications received yet.</p>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Candidate submissions for your open positions will appear here once job seekers apply.
+              </p>
+            </div>
+          ) : filteredApps.length === 0 ? (
             <div className="p-12 text-center text-slate-500 text-xs sm:text-sm">
               No applications match your filter criteria.
             </div>

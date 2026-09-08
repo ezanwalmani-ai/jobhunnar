@@ -11,12 +11,12 @@ export const EmployerCompanyProfilePage: React.FC<EmployerCompanyProfilePageProp
 
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
-    companyName: currentEmployer?.companyName || 'Apex Cloud Technologies',
-    industry: currentEmployer?.industry || 'Cloud Infrastructure & Enterprise AI',
-    location: currentEmployer?.location || 'Bengaluru, India',
-    website: currentEmployer?.website || 'https://apexcloud.example.com',
-    companySize: currentEmployer?.companySize || '250-500 employees',
-    about: currentEmployer?.about || 'Apex Cloud Technologies builds scalable cloud infrastructure, AI platform orchestration, and enterprise database solutions for Fortune 500 innovators worldwide.',
+    companyName: currentEmployer?.companyName || '',
+    industry: currentEmployer?.industry || '',
+    location: currentEmployer?.location || '',
+    website: currentEmployer?.website || '',
+    companySize: currentEmployer?.companySize || '',
+    about: currentEmployer?.about || '',
   });
 
   const handleSave = (e: React.FormEvent) => {

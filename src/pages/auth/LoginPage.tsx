@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, ArrowRight, Building2, User, Sparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { GoogleAuthModal } from '../../components/GoogleAuthModal';
 
@@ -8,7 +8,7 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
-  const { loginWithEmail, registerJobSeeker, showToast } = useApp();
+  const { loginWithEmail, registerJobSeeker } = useApp();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +16,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+
+  const routeUserByRole = (userRole?: string) => {
+    if (userRole === 'employer') {
+      navigate('/employer/dashboard');
+    } else if (userRole === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/job-seeker/dashboard');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,20 +40,31 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
     const res = await loginWithEmail(email, password);
     setIsSubmitting(false);
 
-    if (res.success) {
-      navigate('/job-seeker/dashboard');
+    if (res.success && res.user) {
+      routeUserByRole(res.user.role);
     } else {
-      setError(res.error || 'Invalid credentials.');
+      setError(res.error || 'Invalid credentials. Please verify your email and password.');
+    }
+  };
+
+  const handleQuickLogin = async (demoEmail: string) => {
+    setIsSubmitting(true);
+    setError('');
+    const res = await loginWithEmail(demoEmail);
+    setIsSubmitting(false);
+    if (res.success && res.user) {
+      routeUserByRole(res.user.role);
+    } else {
+      setError(res.error || 'Failed to sign in.');
     }
   };
 
   const handleGoogleSuccess = async (googleUser: { name: string; email: string; avatar: string }) => {
-    // Try to login or register
     const loginRes = await loginWithEmail(googleUser.email);
-    if (loginRes.success) {
-      navigate('/job-seeker/dashboard');
+    if (loginRes.success && loginRes.user) {
+      routeUserByRole(loginRes.user.role);
     } else {
-      // Register with google
+      // Register with google as a job seeker by default
       const regRes = await registerJobSeeker({
         name: googleUser.name,
         email: googleUser.email,
@@ -54,7 +75,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
         state: 'Karnataka',
       });
       if (regRes.success) {
-        navigate('/job-seeker/onboarding');
+        navigate('/job-seeker/dashboard');
       }
     }
   };
@@ -63,21 +84,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
       <div className="max-w-md w-full mx-auto space-y-8">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 text-xs font-semibold mb-2">
-            <span>Welcome Back</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-[#062e22] text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Unified Career Authentication</span>
           </div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             Sign in to HUNAR
           </h1>
           <p className="text-sm text-slate-600">
-            Access your applications, saved jobs, and interview updates.
+            Access your applications, company postings, and dashboard.
           </p>
         </div>
 
         <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
           {error && (
             <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
@@ -86,9 +108,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
           <button
             type="button"
             onClick={() => setIsGoogleModalOpen(true)}
-            className="w-full py-3.5 px-4 rounded-xl border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all flex items-center justify-center gap-3 shadow-sm active:scale-[0.99] cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-xl border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all flex items-center justify-center gap-3 shadow-xs active:scale-[0.99] cursor-pointer"
           >
-            <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -112,7 +134,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
           <div className="relative flex items-center justify-center">
             <div className="border-t border-slate-200 w-full"></div>
             <div className="bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-widest absolute">
-              OR
+              OR SIGN IN WITH EMAIL
             </div>
           </div>
 
@@ -126,7 +148,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
               />
             </div>
 
@@ -149,7 +171,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Your password"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
               />
             </div>
 
@@ -174,15 +196,54 @@ export const LoginPage: React.FC<LoginPageProps> = ({ navigate }) => {
             </div>
           </form>
 
-          <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-600">
-            <span>New to HUNAR? </span>
-            <button
-              type="button"
-              onClick={() => navigate('/register/job-seeker')}
-              className="font-bold text-[#062e22] hover:underline cursor-pointer"
-            >
-              Create your account
-            </button>
+          {/* Quick Demo Test Accounts */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
+              Quick 1-Click Demo Sign-In
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('jobseeker@hunar.careers')}
+                className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50 text-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              >
+                <User className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span>Job Seeker Demo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('employer@hunar.careers')}
+                className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-slate-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              >
+                <Building2 className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                <span>Employer Demo</span>
+              </button>
+            </div>
+          </div>
+
+          {/* New Account Links */}
+          <div className="pt-4 border-t border-slate-100 space-y-2 text-center text-xs text-slate-600">
+            <div>
+              <span>Looking for career opportunities? </span>
+              <button
+                type="button"
+                onClick={() => navigate('/register/job-seeker')}
+                className="font-bold text-[#062e22] hover:underline cursor-pointer"
+              >
+                Register as Job Seeker
+              </button>
+            </div>
+            <div>
+              <span>Hiring talent for your organization? </span>
+              <button
+                type="button"
+                onClick={() => navigate('/register/employer')}
+                className="font-bold text-blue-800 hover:underline cursor-pointer"
+              >
+                Register as Employer
+              </button>
+            </div>
           </div>
         </div>
       </div>
