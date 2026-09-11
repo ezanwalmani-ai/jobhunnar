@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM } from '../../lib/motion';
 import { useApp } from '../../context/AppContext';
 import {
   Shield,
@@ -23,6 +25,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { Job, Course } from '../../types';
+import { AbhiJobsLogo } from '../../components/AbhiJobsLogo';
 
 interface AdminDashboardProps {
   navigate: (route: string) => void;
@@ -110,7 +113,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
       ],
       requirements: [
         'Demonstrated skills in core competencies listed in the job specification.',
-        'Relevant industry experience or verified HUNAR benchmark scores.',
+        'Relevant industry experience or verified ABHI JOBS benchmark scores.',
       ],
       preferredSkills: skillsArray.length > 0 ? skillsArray : ['Communication', 'Teamwork'],
       benefits: ['Competitive Compensation', 'Health Coverage', 'Growth Opportunities'],
@@ -151,75 +154,98 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-[#062e22] rounded-3xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-purple-900/80 border border-purple-500/40 text-[11px] font-bold text-purple-300">
-                <Shield className="w-3.5 h-3.5" />
-                HUNAR HQ &bull; Administrator Operations
-              </span>
+        <ScrollReveal direction="up" distance={16}>
+          <div className="bg-[#061226] border border-slate-800 rounded-3xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <AbhiJobsLogo variant="horizontal" theme="dark" size="sm" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-purple-900/80 border border-purple-500/40 text-[11px] font-bold text-purple-300">
+                  <Shield className="w-3.5 h-3.5" />
+                  Administrator Operations
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold mt-2">Platform Administration &amp; Moderation Hub</h1>
+              <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                The Admin Backend is the single source of truth for jobs, courses, accreditations, and marketplace operations.
+              </p>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold mt-2">Platform Administration &amp; Moderation Hub</h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
-              The Admin Backend is the single source of truth for jobs, courses, accreditations, and marketplace operations.
-            </p>
-          </div>
 
-          <div className="flex flex-wrap gap-2.5">
-            <button
-              onClick={() => setShowJobModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create &amp; Publish Job</span>
-            </button>
-            <button
-              onClick={() => setShowCourseModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Add Course Track</span>
-            </button>
+            <div className="flex flex-wrap gap-2.5">
+              <button
+                onClick={() => setShowJobModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create &amp; Publish Job</span>
+              </button>
+              <button
+                onClick={() => setShowCourseModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Add Course Track</span>
+              </button>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Real Metrics Counter */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500">Live Jobs in Database</div>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{jobs.length}</div>
-            <div className="text-[11px] text-emerald-700 font-medium">
-              {jobs.filter((j) => j.status === 'published').length} published on marketplace
-            </div>
-          </div>
+        <StaggerGroup staggerDelay={0.06} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full"
+            >
+              <div className="text-xs font-semibold text-slate-500">Live Jobs in Database</div>
+              <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{jobs.length}</div>
+              <div className="text-[11px] text-[#004D40] font-medium">
+                {jobs.filter((j) => j.status === 'published').length} published on marketplace
+              </div>
+            </motion.div>
+          </StaggerItem>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500">Curriculum Tracks</div>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{courses.length}</div>
-            <div className="text-[11px] text-purple-700 font-medium">
-              {courses.filter((c) => c.status === 'published').length} available to learners
-            </div>
-          </div>
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full"
+            >
+              <div className="text-xs font-semibold text-slate-500">Curriculum Tracks</div>
+              <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{courses.length}</div>
+              <div className="text-[11px] text-purple-700 font-medium">
+                {courses.filter((c) => c.status === 'published').length} available to learners
+              </div>
+            </motion.div>
+          </StaggerItem>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500">Registered Talent</div>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{candidates.length}</div>
-            <div className="text-[11px] text-blue-700 font-medium">Real candidate accounts</div>
-          </div>
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full"
+            >
+              <div className="text-xs font-semibold text-slate-500">Registered Talent</div>
+              <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{candidates.length}</div>
+              <div className="text-[11px] text-blue-700 font-medium">Real candidate accounts</div>
+            </motion.div>
+          </StaggerItem>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-xs font-semibold text-slate-500">Employer Partners</div>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{companies.length}</div>
-            <div className="text-[11px] text-amber-700 font-medium">Verified organization records</div>
-          </div>
-        </div>
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full"
+            >
+              <div className="text-xs font-semibold text-slate-500">Employer Partners</div>
+              <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">{companies.length}</div>
+              <div className="text-[11px] text-amber-700 font-medium">Verified organization records</div>
+            </motion.div>
+          </StaggerItem>
+        </StaggerGroup>
 
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
           <button
             onClick={() => setActiveTab('jobs')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'jobs' ? 'bg-[#062e22] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'jobs' ? 'bg-[#061226] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Briefcase className="w-3.5 h-3.5" />
@@ -228,7 +254,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
           <button
             onClick={() => setActiveTab('courses')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'courses' ? 'bg-[#062e22] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'courses' ? 'bg-[#061226] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -237,7 +263,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
           <button
             onClick={() => setActiveTab('verifications')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'verifications' ? 'bg-[#062e22] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'verifications' ? 'bg-[#061226] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
@@ -246,7 +272,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
           <button
             onClick={() => setActiveTab('reports')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-              activeTab === 'reports' ? 'bg-[#062e22] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+              activeTab === 'reports' ? 'bg-[#061226] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -264,7 +290,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
               </div>
               <button
                 onClick={() => setShowJobModal(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#004D40] hover:bg-[#00382f] text-white text-xs font-bold cursor-pointer self-start sm:self-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create &amp; Publish Job</span>
@@ -284,7 +310,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
                             job.status === 'published'
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-teal-100 text-[#004D40]'
                               : job.status === 'draft'
                               ? 'bg-amber-100 text-amber-800'
                               : 'bg-slate-100 text-slate-700'
@@ -318,7 +344,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       ) : (
                         <button
                           onClick={() => updateJobStatus(job.id, 'published')}
-                          className="px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-semibold hover:bg-emerald-100 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 text-[#004D40] text-xs font-semibold hover:bg-teal-100 cursor-pointer"
                         >
                           Publish
                         </button>
@@ -346,7 +372,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                 </p>
                 <button
                   onClick={() => setShowJobModal(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-bold shadow-md cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-bold shadow-md cursor-pointer transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create &amp; Publish Real Job</span>
@@ -387,7 +413,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                            course.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            course.status === 'published' ? 'bg-teal-100 text-[#004D40]' : 'bg-amber-100 text-amber-800'
                           }`}
                         >
                           {course.status}
@@ -399,7 +425,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       </p>
                       {course.badgeName && (
                         <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-600">
-                          <Award className="w-3.5 h-3.5 text-emerald-600" />
+                          <Award className="w-3.5 h-3.5 text-[#004D40]" />
                           <span className="font-semibold">{course.badgeName}</span>
                         </div>
                       )}
@@ -416,7 +442,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       ) : (
                         <button
                           onClick={() => updateCourseStatus(course.id, 'published')}
-                          className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer"
+                          className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-teal-50 text-[#004D40] hover:bg-teal-100 cursor-pointer"
                         >
                           Publish
                         </button>
@@ -459,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-700" />
+                  <Users className="w-4 h-4 text-[#004D40]" />
                   <span>Candidate Skill Certifications</span>
                 </h3>
                 <span className="text-xs font-bold text-slate-500">
@@ -476,7 +502,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                           <h4 className="text-sm font-bold text-slate-900">{c.name}</h4>
                           <p className="text-xs text-slate-500">{c.headline || c.email}</p>
                         </div>
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#004D40] border border-teal-200 text-[10px] font-bold">
                           Active
                         </span>
                       </div>
@@ -520,7 +546,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                             <p className="text-[11px] text-slate-500">{comp.industry}</p>
                           </div>
                         </div>
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#004D40] border border-teal-200 text-[10px] font-bold">
                           {comp.verificationStatus || 'Verified'}
                         </span>
                       </div>
@@ -547,14 +573,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
                 onClick={() => exportCsvReport('jobs')}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
+                className="p-5 rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-teal-100 text-[#004D40] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                   <Briefcase className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">Export Jobs Register</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5">Download all {jobs.length} published &amp; draft job postings.</p>
-                <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-[#004D40]">
                   <Download className="w-3.5 h-3.5" />
                   <span>Download CSV</span>
                 </div>
@@ -562,7 +588,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
 
               <button
                 onClick={() => exportCsvReport('candidates')}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
+                className="p-5 rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                   <Users className="w-5 h-5" />
@@ -577,7 +603,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
 
               <button
                 onClick={() => exportCsvReport('employers')}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
+                className="p-5 rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                   <Building2 className="w-5 h-5" />
@@ -592,7 +618,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
 
               <button
                 onClick={() => exportCsvReport('applications')}
-                className="p-5 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
+                className="p-5 rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-xs transition-all text-left group cursor-pointer bg-slate-50/60"
               >
                 <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                   <FileSpreadsheet className="w-5 h-5" />
@@ -634,7 +660,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g. Senior Backend Engineer"
-                      className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                      className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                       required
                     />
                   </div>
@@ -646,7 +672,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                       value={jobCompany}
                       onChange={(e) => setJobCompany(e.target.value)}
                       placeholder="e.g. TechCorp Solutions"
-                      className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                      className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                       required
                     />
                   </div>
@@ -741,7 +767,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                     onChange={(e) => setJobOverview(e.target.value)}
                     rows={3}
                     placeholder="Brief mission, core deliverables, and expectations for this role..."
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                    className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                     required
                   />
                 </div>
@@ -769,7 +795,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigate }) => {
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-bold shadow-md cursor-pointer transition-colors"
+                      className="px-5 py-2 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-bold shadow-md cursor-pointer transition-colors"
                     >
                       Save &amp; Publish Job
                     </button>

@@ -1,1072 +1,1135 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM } from '../../lib/motion';
 import { useApp } from '../../context/AppContext';
 import { JobCard } from '../../components/JobCard';
+import { Button } from '../../components/ui/Button';
 import { ApplyModal } from '../../components/ApplyModal';
-import { Job, CandidateProfile } from '../../types';
+import { Job, Application } from '../../types';
 import {
   Briefcase,
-  Calendar,
-  CheckCircle2,
-  Clock,
+  Bookmark,
+  FileText,
+  GraduationCap,
+  User,
   Sparkles,
   ArrowRight,
-  TrendingUp,
-  Bookmark,
-  ShieldCheck,
-  User,
-  Video,
-  ExternalLink,
-  ChevronRight,
-  Award,
-  Search,
-  Filter,
+  ArrowUpRight,
+  CheckCircle2,
+  Circle,
+  Clock,
   Building2,
   MapPin,
-  Trash2,
-  Plus,
-  Save,
-  FileText,
-  Upload,
+  ShieldCheck,
   AlertCircle,
+  RotateCcw,
+  ChevronRight,
+  ExternalLink,
+  Award,
+  Plus,
+  Check,
+  Eye,
   Sliders,
-  DollarSign,
-  GraduationCap,
+  Calendar,
 } from 'lucide-react';
 
 interface JobSeekerDashboardProps {
   navigate: (route: string) => void;
-  defaultTab?: 'overview' | 'applications' | 'saved_jobs' | 'profile';
+  defaultTab?: string;
 }
 
-export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({
-  navigate,
-  defaultTab = 'overview',
-}) => {
+// User-specific course enrollment interface (aligned with JobSeekerUpskillPage)
+interface UserEnrollment {
+  courseId: string;
+  userId: string;
+  status: 'Started' | 'In Progress' | 'Completed';
+  progressPercentage: number;
+  lastActivity: string;
+  enrolledAt: string;
+}
+
+export const JobSeekerDashboard: React.FC<JobSeekerDashboardProps> = ({ navigate }) => {
   const {
-    currentCandidate,
     currentUser,
+    currentRole,
+    currentCandidate,
     applications,
     jobs,
-    interviews,
+    courses,
     savedJobIds,
-    unsaveJob,
-    saveJob,
-    updateCandidateProfile,
     showToast,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'saved_jobs' | 'profile'>(
-    defaultTab
-  );
+  // Page Lifecycle State
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Application Modal State for Recommendations
   const [selectedJobForApply, setSelectedJobForApply] = useState<Job | null>(null);
 
-  // Applications Filter States
-  const [appFilterStatus, setAppFilterStatus] = useState<string>('All');
-  const [appSearchQuery, setAppSearchQuery] = useState('');
+  // Initial load simulation with clean error handling
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Profile Form State initialized from current candidate or blank
-  const [profileForm, setProfileForm] = useState<CandidateProfile>(
-    currentCandidate || {
-      id: currentUser?.id || '',
-      userId: currentUser?.id || '',
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phone: '',
-      headline: '',
-      location: '',
-      yearsOfExperience: 0,
-      experienceLevel: 'Fresher',
-      currentRole: '',
-      desiredRole: '',
-      preferredLocation: '',
-      workPreference: 'Remote',
-      availability: 'Immediate',
-      profileVisibility: 'employers_only',
-      availableForOpportunities: true,
-      skills: [],
-      about: '',
-      experiences: [],
-      education: [],
-      certifications: [],
-      resumeName: '',
-      completionPercentage: 0,
-      recommendations: [],
-    }
-  );
-
-  React.useEffect(() => {
-    if (currentCandidate) {
-      setProfileForm(currentCandidate);
-    }
-  }, [currentCandidate]);
-
-  const [newSkill, setNewSkill] = useState('');
-
-  const candidate = currentCandidate || profileForm;
-  const myApplications = applications.filter((a) => a.candidateId === candidate.id);
-  const myUpcomingInterviews = interviews.filter(
-    (i) => i.candidateId === candidate.id && i.status === 'scheduled'
-  );
-  const mySavedJobs = jobs.filter((j) => savedJobIds.includes(j.id));
-
-  // Compute profile completion percentage and missing fields
-  const getMissingFields = () => {
-    const missing: string[] = [];
-    if (!profileForm.name?.trim()) missing.push('Full Name');
-    if (!profileForm.headline?.trim()) missing.push('Professional Headline');
-    if (!profileForm.about?.trim() || profileForm.about.length < 25) missing.push('Detailed Bio/About summary');
-    if (!profileForm.phone?.trim()) missing.push('Phone Number');
-    if (!profileForm.location?.trim()) missing.push('Location');
-    if (!profileForm.desiredRole?.trim()) missing.push('Preferred Job Role');
-    if (!profileForm.preferredLocation?.trim()) missing.push('Preferred Location');
-    if (!profileForm.skills || profileForm.skills.length < 3) missing.push('At least 3 core skills');
-    if (!profileForm.experiences || profileForm.experiences.length === 0) missing.push('Work Experience history');
-    if (!profileForm.education || profileForm.education.length === 0) missing.push('Education details');
-    if (!profileForm.resumeName) missing.push('Resume document');
-    return missing;
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast('info', 'Dashboard Refreshed', 'Your latest applications, saved jobs, and profile status are synchronized.');
+    }, 350);
   };
 
-  const missingFields = getMissingFields();
-  const calculatedCompletion = Math.max(
-    30,
-    Math.min(100, Math.round(100 - (missingFields.length * 6.5)))
-  );
+  // 1. Profile Completion calculation (strictly mirrors /profile calculation)
+  const profileCompletion = useMemo(() => {
+    let score = 20; // Base score for having an account
+    const name = currentCandidate?.name || currentUser?.name || '';
+    const headline = currentCandidate?.headline || '';
+    const phone = currentCandidate?.phone || '';
+    const location = currentCandidate?.location || '';
+    const about = currentCandidate?.about || '';
+    const skills = currentCandidate?.skills || [];
 
-  // Filtered applications
-  const filteredApps = myApplications.filter((app) => {
-    if (appFilterStatus !== 'All' && app.status !== appFilterStatus) return false;
-    if (appSearchQuery) {
-      const q = appSearchQuery.toLowerCase();
-      return (
-        app.jobTitle.toLowerCase().includes(q) ||
-        app.companyName.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+    if (name.trim().length > 2) score += 15;
+    if (headline.trim().length > 3) score += 15;
+    if (phone.trim().length >= 10) score += 15;
+    if (location.trim().length > 2) score += 10;
+    if (about.trim().length > 15) score += 10;
+    if (Array.isArray(skills) && skills.length >= 3) score += 15;
 
-  // Recommended jobs based on candidate profile
-  const recommendedJobs = jobs
-    .filter((j) => {
-      if (j.status !== 'published') return false;
-      const skills = candidate.skills || [];
-      const hasMatchingSkill = skills.some((s) =>
-        typeof s === 'string' &&
-        (j.preferredSkills || []).some((ps) => typeof ps === 'string' && ps.toLowerCase().includes(s.toLowerCase()))
-      );
-      const hasMatchingRole =
-        candidate.desiredRole &&
-        j.title.toLowerCase().includes(candidate.desiredRole.toLowerCase().split(' ')[0]);
-      return hasMatchingSkill || hasMatchingRole;
-    })
-    .slice(0, 3);
+    return Math.min(score, 100);
+  }, [currentCandidate, currentUser]);
 
-  const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-    applied: { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', label: 'Applied' },
-    under_review: { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', label: 'Under Review' },
-    shortlisted: { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', label: 'Shortlisted' },
-    interview_scheduled: { bg: 'bg-purple-50 border-purple-200', text: 'text-purple-700', label: 'Interview' },
-    hired: { bg: 'bg-teal-50 border-teal-200', text: 'text-teal-800', label: 'Selected' },
-    rejected: { bg: 'bg-rose-50 border-rose-200', text: 'text-rose-700', label: 'Rejected' },
-  };
-
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    const updated = {
-      ...profileForm,
-      completionPercentage: calculatedCompletion,
-    };
-    updateCandidateProfile(updated);
-    showToast('success', 'Profile Updated', 'Your profile information has been saved successfully.');
-  };
-
-  const handleAddSkill = () => {
-    if (!newSkill.trim()) return;
-    if (profileForm.skills.includes(newSkill.trim())) return;
-    setProfileForm({
-      ...profileForm,
-      skills: [...profileForm.skills, newSkill.trim()],
+  // 2. Real Authenticated Job Seeker Applications
+  const myApplications = useMemo(() => {
+    if (!currentUser) return [];
+    return applications.filter((app) => {
+      const matchesCandidateId = currentCandidate && app.candidateId === currentCandidate.id;
+      const matchesUserId = app.candidateId === currentUser.id;
+      const matchesUserEmail =
+        currentUser?.email && app.candidateEmail?.toLowerCase() === currentUser.email.toLowerCase();
+      return matchesCandidateId || matchesUserId || matchesUserEmail;
     });
-    setNewSkill('');
+  }, [applications, currentCandidate, currentUser]);
+
+  // Sort applications by newest date first
+  const recentApplications = useMemo(() => {
+    return [...myApplications]
+      .sort((a, b) => new Date(b.appliedAt || 0).getTime() - new Date(a.appliedAt || 0).getTime())
+      .slice(0, 3);
+  }, [myApplications]);
+
+  // 3. Real Authenticated Job Seeker Saved Jobs
+  const mySavedJobs = useMemo(() => {
+    return savedJobIds
+      .map((id) => jobs.find((j) => j.id === id))
+      .filter((j): j is Job => Boolean(j));
+  }, [savedJobIds, jobs]);
+
+  const recentSavedJobs = useMemo(() => {
+    return mySavedJobs.slice(0, 3);
+  }, [mySavedJobs]);
+
+  // 4. Real Authenticated Job Seeker Enrolled Courses / Upskill Progress
+  const userEnrollments = useMemo<UserEnrollment[]>(() => {
+    if (!currentUser?.id) return [];
+    try {
+      const stored = localStorage.getItem(`abhijobs_enrollments_${currentUser.id}`) || localStorage.getItem(`hunar_enrollments_${currentUser.id}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+    } catch {
+      // safe fallback
+    }
+    return [];
+  }, [currentUser?.id]);
+
+  const enrolledCourses = useMemo(() => {
+    return userEnrollments
+      .map((enr) => {
+        const course = courses.find((c) => c.id === enr.courseId);
+        return course ? { ...course, enrollment: enr } : null;
+      })
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  }, [userEnrollments, courses]);
+
+  // 5. Real Matching Job Recommendations (based strictly on candidate profile data)
+  const recommendedJobs = useMemo(() => {
+    const skills = currentCandidate?.skills || [];
+    const desiredRole = currentCandidate?.desiredRole || '';
+    if (skills.length === 0 && !desiredRole) return [];
+
+    return jobs
+      .filter((job) => {
+        if (job.status !== 'published') return false;
+        // Do not recommend jobs user has already applied to
+        const alreadyApplied = myApplications.some((app) => app.jobId === job.id);
+        if (alreadyApplied) return false;
+
+        const hasMatchingSkill = skills.some(
+          (s) =>
+            typeof s === 'string' &&
+            Array.isArray(job.preferredSkills) &&
+            job.preferredSkills.some(
+              (ps) => typeof ps === 'string' && ps.toLowerCase().includes(s.toLowerCase())
+            )
+        );
+
+        const hasMatchingRole =
+          desiredRole &&
+          job.title.toLowerCase().includes(desiredRole.toLowerCase().split(' ')[0]);
+
+        return hasMatchingSkill || hasMatchingRole;
+      })
+      .slice(0, 3);
+  }, [jobs, currentCandidate, myApplications]);
+
+  // 6. Career Readiness checklist based strictly on real profile data
+  const careerReadinessItems = useMemo(() => {
+    const candidate = currentCandidate;
+    const user = currentUser;
+
+    const hasName = Boolean((candidate?.name || user?.name || '').trim().length > 2);
+    const hasHeadline = Boolean((candidate?.headline || '').trim().length > 3);
+    const hasAbout = Boolean((candidate?.about || '').trim().length > 15);
+    const hasPhone = Boolean((candidate?.phone || '').trim().length >= 10);
+    const hasLocation = Boolean((candidate?.location || '').trim().length > 2);
+
+    const isBasicProfileComplete = hasName && hasHeadline && hasAbout && hasPhone && hasLocation;
+    const hasSkills = Boolean(Array.isArray(candidate?.skills) && candidate.skills.length >= 3);
+    const hasExperience = Boolean(
+      (Array.isArray(candidate?.experiences) && candidate.experiences.length > 0) ||
+      (Array.isArray((candidate as any)?.experience) && (candidate as any).experience.length > 0) ||
+      candidate?.experienceLevel === 'Fresher'
+    );
+    const hasResume = Boolean(candidate?.resumeName || candidate?.resumeUrl);
+    const hasPreferences = Boolean(
+      (candidate?.desiredRole && candidate.desiredRole.trim().length > 0) ||
+      (candidate?.workPreference && candidate.workPreference.trim().length > 0)
+    );
+
+    return [
+      {
+        id: 'profile',
+        title: 'Complete Profile Details',
+        description: 'Name, headline, contact information, and biography.',
+        isCompleted: isBasicProfileComplete,
+        actionLabel: isBasicProfileComplete ? 'Edit Profile' : 'Complete Profile',
+        action: () => navigate('/profile'),
+      },
+      {
+        id: 'skills',
+        title: 'Add Core Skills',
+        description: hasSkills
+          ? `${candidate?.skills?.length || 0} skills listed on your profile.`
+          : 'Add at least 3 core competencies to match job openings.',
+        isCompleted: hasSkills,
+        actionLabel: hasSkills ? 'Manage Skills' : 'Add Skills',
+        action: () => navigate('/profile'),
+      },
+      {
+        id: 'experience',
+        title: 'Add Experience History',
+        description: hasExperience
+          ? 'Work background and achievements documented.'
+          : 'Document your internships, roles, or fresher qualifications.',
+        isCompleted: hasExperience,
+        actionLabel: hasExperience ? 'Review Experience' : 'Add Experience',
+        action: () => navigate('/profile'),
+      },
+      {
+        id: 'resume',
+        title: 'Upload Resume',
+        description: hasResume
+          ? `Verified resume attached: ${candidate?.resumeName || 'Resume.pdf'}`
+          : 'Upload your latest CV for one-click applications.',
+        isCompleted: hasResume,
+        actionLabel: hasResume ? 'Replace Resume' : 'Upload Resume',
+        action: () => navigate('/profile'),
+      },
+      {
+        id: 'preferences',
+        title: 'Set Career Preferences',
+        description: hasPreferences
+          ? `Target role: ${candidate?.desiredRole || 'Configured'}`
+          : 'Specify your desired role, work mode, and location.',
+        isCompleted: hasPreferences,
+        actionLabel: hasPreferences ? 'Edit Preferences' : 'Set Career Preferences',
+        action: () => navigate('/profile'),
+      },
+    ];
+  }, [currentCandidate, currentUser, navigate]);
+
+  // Status badge styling helper
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'applied':
+        return { label: 'Applied', bg: 'bg-blue-50 text-blue-700 border-blue-200' };
+      case 'under_review':
+        return { label: 'Under Review', bg: 'bg-amber-50 text-amber-700 border-amber-200' };
+      case 'shortlisted':
+        return { label: 'Shortlisted', bg: 'bg-teal-50 text-[#004D40] border-teal-200' };
+      case 'interview_scheduled':
+        return { label: 'Interview Scheduled', bg: 'bg-purple-50 text-purple-700 border-purple-200' };
+      case 'hired':
+        return { label: 'Selected', bg: 'bg-teal-50 text-teal-800 border-teal-200' };
+      case 'rejected':
+        return { label: 'Not Selected', bg: 'bg-rose-50 text-rose-700 border-rose-200' };
+      default:
+        return { label: status.replace(/_/g, ' '), bg: 'bg-slate-50 text-slate-700 border-slate-200' };
+    }
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setProfileForm({
-      ...profileForm,
-      skills: profileForm.skills.filter((s) => s !== skillToRemove),
-    });
+  // Safe user display name
+  const userName = currentCandidate?.name || currentUser?.name || '';
+  const displayGreetingName = userName.trim() ? userName.trim() : 'Job Seeker';
+
+  // Format date helper
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return 'Recently';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Recently';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return 'Recently';
+    }
   };
+
+  // Unauthenticated State Handling
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs text-center space-y-5">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-[#061226]">
+            <ShieldCheck className="w-7 h-7" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-slate-900">Sign In to View Your Dashboard</h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Access your personal applications, saved opportunities, learning progress, and profile completion.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/login')}
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px]"
+          >
+            <span>Sign In to ABHI JOBS</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading Skeleton State
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 space-y-6 animate-pulse">
+          {/* Header Skeleton */}
+          <div className="h-32 bg-slate-200 rounded-3xl" />
+          {/* Metrics Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-28 bg-slate-200 rounded-2xl" />
+            ))}
+          </div>
+          {/* Quick Actions Skeleton */}
+          <div className="h-16 bg-slate-200 rounded-2xl" />
+          {/* Main Content Grid Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-64 bg-slate-200 rounded-3xl" />
+              <div className="h-64 bg-slate-200 rounded-3xl" />
+            </div>
+            <div className="space-y-6">
+              <div className="h-48 bg-slate-200 rounded-3xl" />
+              <div className="h-64 bg-slate-200 rounded-3xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State Handling
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-rose-200 p-6 sm:p-8 shadow-xs text-center space-y-5">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+            <AlertCircle className="w-7 h-7" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-slate-900">Dashboard Unavailable</h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              We encountered an issue loading your dashboard data. Please retry or refresh your session.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setHasError(false);
+              setIsLoading(true);
+              setTimeout(() => setIsLoading(false), 200);
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px]"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Try Again</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        
-        {/* Welcome Header Banner */}
-        <div className="bg-gradient-to-r from-[#062e22] via-[#093d2e] to-[#0d4a38] rounded-3xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-2xl text-emerald-300 shadow-inner">
-              {candidate?.name?.charAt(0) || currentUser?.name?.charAt(0) || 'U'}
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold">{candidate?.name || currentUser?.name || 'Job Seeker'}</h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-xs font-bold text-emerald-300">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Verified Job Seeker
-                </span>
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+
+        {/* 1. WELCOME SECTION */}
+        <ScrollReveal direction="up" distance={16}>
+          <div className="bg-[#061226] border border-slate-800 rounded-3xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-start sm:items-center gap-4 min-w-0">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-xl sm:text-2xl text-teal-200 shadow-inner shrink-0">
+                {displayGreetingName.charAt(0).toUpperCase()}
               </div>
-              <p className="text-xs sm:text-sm text-emerald-100/80 mt-1">
-                {candidate?.headline || (candidate?.location ? candidate.location : 'Complete your profile to unlock job matches')}
-              </p>
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight truncate">
+                    Welcome back, {displayGreetingName}
+                  </h1>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-slate-700 text-[11px] font-bold text-teal-200 shrink-0">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Verified Job Seeker
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                  Track your career progress, applications, saved opportunities, and learning journey in one place.
+                </p>
+                {currentCandidate?.headline && (
+                  <p className="text-xs text-teal-200/80 truncate">
+                    {currentCandidate.headline}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition-colors cursor-pointer min-h-[44px]"
+                aria-label="Refresh dashboard data"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+              <button
+                onClick={() => navigate('/jobs')}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer min-h-[44px]"
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>Find Jobs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
+        </ScrollReveal>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold backdrop-blur-sm transition-colors cursor-pointer"
+        {/* 2. PROMINENT PROFILE COMPLETION CARD (Mobile & Top Desktop Placement) */}
+        <ScrollReveal direction="up" delay={0.04} distance={16}>
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="px-2.5 py-0.5 rounded-full bg-teal-100 text-[#061226] text-xs font-bold inline-flex items-center gap-1">
+                    <User className="w-3 h-3 text-[#004D40]" />
+                    Profile Completion
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-slate-900">
+                    {profileCompletion}% Complete
+                  </span>
+                  {profileCompletion === 100 ? (
+                    <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#004D40] border border-teal-200 text-xs font-semibold inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Profile Completed
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold">
+                      {100 - profileCompletion}% to reach maximum visibility
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Completed candidate profiles receive up to 4x more direct interview invitations from verified recruiters.
+                </p>
+              </div>
+
+              <button
+                onClick={() => navigate('/profile')}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px] shrink-0 self-start sm:self-auto"
+              >
+                <span>{profileCompletion === 100 ? 'Edit My Profile' : 'Complete My Profile'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Animated Progress Bar */}
+            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-[#004D40] h-3 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${profileCompletion}%` }}
+                role="progressbar"
+                aria-valuenow={profileCompletion}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              />
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* 3. CAREER OVERVIEW SUMMARY CARDS */}
+        <StaggerGroup staggerDelay={0.05} className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+          {/* Card 1: Applications */}
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              onClick={() => navigate('/applications')}
+              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group h-full"
             >
-              Edit My Profile
-            </button>
+              <div className="flex items-center justify-between gap-2">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                  {myApplications.length}
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-700 mt-0.5">
+                  Applications
+                </div>
+                <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                  {myApplications.length === 1 ? '1 job application' : `${myApplications.length} total submitted`}
+                </div>
+              </div>
+            </motion.div>
+          </StaggerItem>
+
+          {/* Card 2: Saved Jobs */}
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              onClick={() => navigate('/saved-jobs')}
+              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group h-full"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#004D40] shrink-0">
+                  <Bookmark className="w-5 h-5" />
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#FF2B1A] group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                  {mySavedJobs.length}
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-700 mt-0.5">
+                  Saved Jobs
+                </div>
+                <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                  {mySavedJobs.length === 1 ? '1 opportunity saved' : `${mySavedJobs.length} bookmarked`}
+                </div>
+              </div>
+            </motion.div>
+          </StaggerItem>
+
+          {/* Card 3: Learning / Upskill */}
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              onClick={() => navigate('/learning')}
+              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group h-full"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-700 shrink-0">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                  {enrolledCourses.length}
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-700 mt-0.5">
+                  Learning
+                </div>
+                <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                  {enrolledCourses.length === 1 ? '1 active course' : `${enrolledCourses.length} enrolled tracks`}
+                </div>
+              </div>
+            </motion.div>
+          </StaggerItem>
+
+          {/* Card 4: Profile Completion */}
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2, ease: EASE_PREMIUM } }}
+              onClick={() => navigate('/profile')}
+              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group h-full"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+                  <User className="w-5 h-5" />
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                  {profileCompletion}%
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-700 mt-0.5">
+                  Profile Strength
+                </div>
+                <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                  {profileCompletion === 100 ? 'All fields verified' : 'Action items pending'}
+                </div>
+              </div>
+            </motion.div>
+          </StaggerItem>
+        </StaggerGroup>
+
+        {/* 4. QUICK ACTIONS BAR */}
+        <ScrollReveal direction="up" delay={0.06} distance={16}>
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-5 shadow-xs">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Quick Actions
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
             <button
               onClick={() => navigate('/jobs')}
-              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[44px] group text-center"
             >
-              <span>Find Jobs</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <Briefcase className="w-4 h-4 text-[#004D40] shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate">Find Jobs</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/applications')}
+              className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[44px] group text-center"
+            >
+              <FileText className="w-4 h-4 text-blue-700 shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate">My Applications</span>
+              {myApplications.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-extrabold shrink-0">
+                  {myApplications.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => navigate('/saved-jobs')}
+              className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[44px] group text-center"
+            >
+              <Bookmark className="w-4 h-4 text-[#004D40] shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate">Saved Jobs</span>
+              {mySavedJobs.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-teal-100 text-[#004D40] text-[10px] font-extrabold shrink-0">
+                  {mySavedJobs.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => navigate('/learning')}
+              className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-purple-500 hover:bg-purple-50/50 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[44px] group text-center"
+            >
+              <GraduationCap className="w-4 h-4 text-purple-700 shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate">My Learning</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 text-slate-800 text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[44px] group text-center col-span-2 sm:col-span-1"
+            >
+              <User className="w-4 h-4 text-amber-700 shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate">My Profile</span>
             </button>
           </div>
         </div>
+        </ScrollReveal>
 
-        {/* Visible Dashboard Navigation Tabs (My Dashboard Central Hub) */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-1.5 shadow-xs flex items-center gap-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'overview'
-                ? 'bg-[#062e22] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Overview</span>
-          </button>
+        {/* 5. MAIN CONTENT 2-COLUMN GRID (Left: Applications, Saved, Recommendations | Right: Career Readiness, Learning) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
 
-          <button
-            onClick={() => setActiveTab('applications')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'applications'
-                ? 'bg-[#062e22] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>My Applications</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'applications'
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {myApplications.length}
-            </span>
-          </button>
+          {/* LEFT 2 COLUMNS */}
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
 
-          <button
-            onClick={() => setActiveTab('saved_jobs')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'saved_jobs'
-                ? 'bg-[#062e22] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Bookmark className="w-4 h-4" />
-            <span>Saved Jobs</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'saved_jobs'
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-slate-100 text-slate-600'
-              }`}
-            >
-              {mySavedJobs.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'profile'
-                ? 'bg-[#062e22] text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>My Profile</span>
-            <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'profile'
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-emerald-100 text-emerald-800'
-              }`}
-            >
-              {calculatedCompletion}%
-            </span>
-          </button>
-        </div>
-
-        {/* TAB 1: OVERVIEW */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* 4 Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div
-                onClick={() => setActiveTab('applications')}
-                className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500/40 shadow-xs cursor-pointer transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">My Applications</span>
-                  <Briefcase className="w-4 h-4 text-emerald-700" />
-                </div>
-                <div className="text-2xl font-extrabold text-slate-900 mt-2">{myApplications.length}</div>
-                <div className="text-[11px] text-emerald-700 mt-1 font-medium flex items-center gap-1">
-                  <span>View live tracking</span>
-                  <ChevronRight className="w-3 h-3" />
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">Upcoming Interviews</span>
-                  <Calendar className="w-4 h-4 text-purple-700" />
-                </div>
-                <div className="text-2xl font-extrabold text-slate-900 mt-2">{myUpcomingInterviews.length}</div>
-                <div className="text-[11px] text-purple-700 mt-1 font-medium">
-                  {myUpcomingInterviews[0] ? `Next on ${myUpcomingInterviews[0].scheduledDate}` : 'No pending interviews'}
-                </div>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('profile')}
-                className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-blue-500/40 shadow-xs cursor-pointer transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">Profile Completion</span>
-                  <Award className="w-4 h-4 text-blue-700" />
-                </div>
-                <div className="text-2xl font-extrabold text-slate-900 mt-2">{calculatedCompletion}%</div>
-                <div className="text-[11px] text-blue-700 mt-1 font-medium flex items-center gap-1">
-                  <span>{missingFields.length === 0 ? 'Fully completed' : `${missingFields.length} recommended actions`}</span>
-                  <ChevronRight className="w-3 h-3" />
-                </div>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('saved_jobs')}
-                className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-amber-500/40 shadow-xs cursor-pointer transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">Saved Jobs</span>
-                  <Bookmark className="w-4 h-4 text-amber-600" />
-                </div>
-                <div className="text-2xl font-extrabold text-slate-900 mt-2">{mySavedJobs.length}</div>
-                <div className="text-[11px] text-amber-700 mt-1 font-medium flex items-center gap-1">
-                  <span>View saved jobs</span>
-                  <ChevronRight className="w-3 h-3" />
-                </div>
-              </div>
-            </div>
-
-            {/* Profile Completion Prompt Banner if not 100% */}
-            {calculatedCompletion < 100 && (
-              <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-700 shrink-0" />
-                    <span className="font-bold text-slate-900 text-sm">
-                      Profile Completion: {calculatedCompletion}%
-                    </span>
+            {/* SECTION: RECENT APPLICATIONS */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 shrink-0">
+                    <FileText className="w-4 h-4" />
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Improve your recruiter visibility and job match quality by completing:{' '}
-                    <strong className="text-emerald-950">{missingFields.slice(0, 3).join(', ')}</strong>.
-                  </p>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900">Recent Applications</h2>
+                    <p className="text-xs text-slate-500">Your submitted job proposals and live status</p>
+                  </div>
                 </div>
+
                 <button
-                  onClick={() => setActiveTab('profile')}
-                  className="px-4 py-2 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-bold shrink-0 transition-colors cursor-pointer self-start sm:self-auto"
+                  onClick={() => navigate('/applications')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shrink-0 min-h-[36px]"
                 >
-                  Complete Profile
+                  <span>View All Applications</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-            )}
 
-            {/* Main Overview Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left 2 Cols: Recent Applications & Recommended Jobs */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* Recent Applications Card */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                    <div>
-                      <h2 className="text-base font-bold text-slate-900">Recent Applications</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">Real-time status updates from verified employers</p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab('applications')}
-                      className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>View All ({myApplications.length})</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {myApplications.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-slate-500 space-y-3">
-                      <p>You haven't submitted any job applications yet.</p>
-                      <button
-                        onClick={() => navigate('/jobs')}
-                        className="px-4 py-2 rounded-xl bg-[#062e22] text-white font-semibold"
+              {recentApplications.length > 0 ? (
+                <div className="space-y-3">
+                  {recentApplications.map((app) => {
+                    const badge = getStatusBadge(app.status);
+                    return (
+                      <div
+                        key={app.id}
+                        className="p-4 rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                       >
-                        Find Jobs to Apply
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {myApplications.slice(0, 4).map((app) => (
-                        <div
-                          key={app.id}
-                          className="p-4 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-bold text-slate-900">{app.jobTitle}</h3>
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${
-                                  statusColors[app.status]?.bg || 'bg-slate-100 border-slate-200'
-                                } ${statusColors[app.status]?.text || 'text-slate-700'}`}
-                              >
-                                {statusColors[app.status]?.label || app.status}
-                              </span>
-                            </div>
-                            <div className="text-xs text-slate-600">
-                              {app.companyName} &bull; Applied on {app.appliedDate}
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => navigate(`/jobs/${app.jobId}`)}
-                            className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer self-start sm:self-auto"
-                          >
-                            View Job
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Matched to Profile Recommendations */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-emerald-600" />
-                        <span>Recommended for You</span>
-                      </h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Matched against your candidate profile preferences &amp; verified skills
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate('/jobs')}
-                      className="text-xs font-bold text-emerald-800 hover:text-emerald-950 cursor-pointer"
-                    >
-                      View All Jobs
-                    </button>
-                  </div>
-
-                  {recommendedJobs.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {recommendedJobs.slice(0, 2).map((job) => (
-                        <JobCard
-                          key={job.id}
-                          job={job}
-                          onApply={(j) => setSelectedJobForApply(j)}
-                          onViewDetails={(id) => navigate(`/jobs/${id}`)}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-500 space-y-2">
-                      <Briefcase className="w-8 h-8 text-slate-400 mx-auto" />
-                      <p className="font-semibold text-slate-800">No matching recommendations right now</p>
-                      <p className="text-slate-500 max-w-sm mx-auto">
-                        We're preparing new opportunities. Verified openings published by employers will appear here automatically.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Col: Interviews & Learning Shortcuts */}
-              <div className="space-y-6">
-                
-                {/* Interviews Card */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <Video className="w-4 h-4 text-purple-600" />
-                      <span>My Interviews</span>
-                    </h3>
-                    <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">
-                      {myUpcomingInterviews.length} Scheduled
-                    </span>
-                  </div>
-
-                  {myUpcomingInterviews.length === 0 ? (
-                    <p className="text-xs text-slate-400 py-4 text-center">
-                      No upcoming interviews scheduled yet.
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {myUpcomingInterviews.map((interview) => (
-                        <div
-                          key={interview.id}
-                          className="p-3.5 rounded-xl border border-purple-200 bg-purple-50/40 space-y-2"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <div className="text-xs font-bold text-slate-900">{interview.jobTitle}</div>
-                              <div className="text-[11px] text-slate-600">{interview.companyName}</div>
-                            </div>
-                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-800">
-                              {interview.type}
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-sm font-bold text-slate-900 truncate">
+                              {app.jobTitle}
+                            </h3>
+                            <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold border ${badge.bg}`}>
+                              {badge.label}
                             </span>
                           </div>
-
-                          <div className="text-xs text-purple-950 font-semibold flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-purple-700" />
-                            <span>
-                              {interview.scheduledDate} &bull; {interview.scheduledTime}
+                          <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                              {app.companyName}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              Applied {formatDate(app.appliedAt)}
                             </span>
                           </div>
-
-                          {interview.meetingLink && (
-                            <a
-                              href={interview.meetingLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full inline-flex items-center justify-center gap-1 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-[11px] font-bold transition-colors"
-                            >
-                              <Video className="w-3.5 h-3.5" />
-                              <span>Join Call</span>
-                            </a>
-                          )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                {/* My Learning / Upskill Shortcut */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-emerald-700" />
-                      <span>Skill Certification</span>
-                    </h3>
-                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
-                      HUNAR Upskill
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Earn verified competency credentials to stand out in the employer talent directory.
-                  </p>
-                  <button
-                    onClick={() => navigate('/job-seeker/upskill')}
-                    className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-950 text-slate-700 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <span>Browse Learning Modules</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: MY APPLICATIONS */}
-        {activeTab === 'applications' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Header / Filter Toolbar */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row items-center gap-3">
-              <div className="relative flex-1 w-full">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={appSearchQuery}
-                  onChange={(e) => setAppSearchQuery(e.target.value)}
-                  placeholder="Search applied jobs or companies..."
-                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Filter className="w-4 h-4 text-slate-400 shrink-0" />
-                <select
-                  value={appFilterStatus}
-                  onChange={(e) => setAppFilterStatus(e.target.value)}
-                  className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-hidden focus:border-emerald-600 cursor-pointer"
-                >
-                  <option value="All">All Application Statuses</option>
-                  <option value="applied">Applied</option>
-                  <option value="under_review">Under Review</option>
-                  <option value="shortlisted">Shortlisted</option>
-                  <option value="interview_scheduled">Interview</option>
-                  <option value="hired">Selected</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Application List */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
-              {filteredApps.length === 0 ? (
-                <div className="p-12 text-center space-y-3">
-                  <Briefcase className="w-10 h-10 text-slate-300 mx-auto" />
-                  <p className="text-sm font-semibold text-slate-700">No applications found</p>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    {appSearchQuery || appFilterStatus !== 'All'
-                      ? 'Try clearing your search or status filters.'
-                      : 'You have not submitted any applications yet. Browse verified openings to get started.'}
-                  </p>
-                  <button
-                    onClick={() => navigate('/jobs')}
-                    className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors cursor-pointer"
-                  >
-                    Browse Open Jobs
-                  </button>
+                        <button
+                          onClick={() => navigate('/applications')}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer shrink-0 min-h-[36px] self-start sm:self-auto"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-500" />
+                          <span>View Application</span>
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                filteredApps.map((app) => {
-                  const statusCfg = statusColors[app.status] || {
-                    bg: 'bg-slate-100 border-slate-200',
-                    text: 'text-slate-700',
-                    label: app.status,
-                  };
+                /* Strict requested empty state */
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center space-y-3 bg-slate-50/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-bold text-slate-800">
+                      You haven't applied to any jobs yet.
+                    </div>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                      Explore verified openings matching your skills and start your application journey today.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/jobs')}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px]"
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    <span>Find Jobs</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
-                  return (
+            {/* SECTION: SAVED JOBS */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#004D40] shrink-0">
+                    <Bookmark className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900">Saved Jobs</h2>
+                    <p className="text-xs text-slate-500">Opportunities bookmarked for your review</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate('/saved-jobs')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shrink-0 min-h-[36px]"
+                >
+                  <span>View Saved Jobs</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {recentSavedJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {recentSavedJobs.map((job) => (
                     <div
-                      key={app.id}
-                      className="p-5 sm:p-6 hover:bg-slate-50/80 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      key={job.id}
+                      className="p-4 rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="font-bold text-slate-900 text-base">{app.jobTitle}</span>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${statusCfg.bg} ${statusCfg.text}`}
-                          >
-                            {statusCfg.label}
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-500">
-                          <span className="flex items-center gap-1 font-medium text-slate-700">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                            {app.companyName}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            Applied on {app.appliedDate}
-                          </span>
-                          <span className="text-emerald-700 font-semibold">
-                            Score: {app.matchScore}% skill match
-                          </span>
-                        </div>
-
-                        {app.timeline && app.timeline.length > 0 && (
-                          <div className="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>
-                              <strong>{app.timeline[app.timeline.length - 1].status}:</strong>{' '}
-                              {app.timeline[app.timeline.length - 1].note || 'Application updated'}
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-sm font-bold text-slate-900 truncate">
+                            {job.title}
+                          </h3>
+                          {job.type && (
+                            <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 text-[#004D40] border border-teal-200">
+                              {job.type}
                             </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                            {job.company || (job as any).companyName || 'Verified Employer'}
+                          </span>
+                          {job.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                              {job.location}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/jobs/${job.id}`)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer shrink-0 min-h-[36px] self-start sm:self-auto"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-slate-500" />
+                        <span>View Job</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Strict requested empty state */
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center space-y-3 bg-slate-50/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                    <Bookmark className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm font-bold text-slate-800">
+                      No saved jobs yet.
+                    </div>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                      Bookmark promising opportunities while searching to apply when you are ready.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/jobs')}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px]"
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    <span>Find Jobs</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* SECTION: JOB RECOMMENDATIONS (Requirement 10) */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-slate-900">Job Recommendations</h2>
+                    <p className="text-xs text-slate-500">Curated opportunities matched against your verified skills &amp; preferences</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate('/jobs')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer shrink-0 min-h-[36px]"
+                >
+                  <span>Explore All Jobs</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {recommendedJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {recommendedJobs.map((job) => (
+                    <div
+                      key={job.id}
+                      className="p-4 rounded-2xl border border-[#E4E7EC] hover:border-slate-300 hover:shadow-xs transition-all bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                    >
+                      <div className="space-y-1.5 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#061226] transition-colors truncate">
+                            {job.title}
+                          </h3>
+                          <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#004D40] border border-teal-200 text-[10px] font-bold flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" /> Skill Match
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                            {job.company || (job as any).companyName || 'Verified Employer'}
+                          </span>
+                          {job.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                              {job.location}
+                            </span>
+                          )}
+                          {job.type && (
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                              {job.type}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Matching Skills Tags */}
+                        {Array.isArray(job.preferredSkills) && job.preferredSkills.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                            {job.preferredSkills.slice(0, 3).map((skill, idx) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium"
+                              >
+                                {skill}
+                              </span>
+                            ))}
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 self-end md:self-center shrink-0">
-                        <button
-                          onClick={() => navigate(`/jobs/${app.jobId}`)}
-                          className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+                      <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => navigate(`/jobs/${job.id}`)}
+                          className="min-h-[36px]"
                         >
-                          <span>View Job</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
+                          View Job
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => setSelectedJobForApply(job)}
+                          className="min-h-[36px]"
+                        >
+                          Apply Now
+                        </Button>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: SAVED JOBS */}
-        {activeTab === 'saved_jobs' && (
-          <div className="space-y-6 animate-fadeIn">
-            {mySavedJobs.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4 shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                  <Bookmark className="w-6 h-6" />
+                  ))}
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-800">No saved jobs yet</h3>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
-                    While browsing opportunities in Find Jobs, click the bookmark icon on any job card to save it here for quick access.
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate('/jobs')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-colors cursor-pointer"
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span>Find Jobs</span>
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mySavedJobs.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    onApply={(j) => setSelectedJobForApply(j)}
-                    onViewDetails={(jobId) => navigate(`/jobs/${jobId}`)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 4: MY PROFILE (View, Edit, Add Missing Information, Save, Progress) */}
-        {activeTab === 'profile' && (
-          <form onSubmit={handleSaveProfile} className="space-y-6 animate-fadeIn">
-            
-            {/* Profile Completion Indicator Header */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-slate-900">Profile Completion: {calculatedCompletion}%</h2>
-                    {calculatedCompletion === 100 ? (
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">
-                        100% Complete
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-xs font-bold">
-                        {missingFields.length} Items to Finish
-                      </span>
-                    )}
+              ) : (
+                /* Professional empty state for recommendations */
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center space-y-3 bg-slate-50/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700">
+                    <Sparkles className="w-6 h-6" />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Complete your profile to unlock verified recruiter discovery and 1-click applications.
-                  </p>
-                </div>
-
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-bold shadow-sm transition-all cursor-pointer self-start sm:self-auto"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Save Changes</span>
-                </button>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-emerald-600 h-2.5 rounded-full transition-all duration-500"
-                  style={{ width: `${calculatedCompletion}%` }}
-                />
-              </div>
-
-              {/* Missing Fields Checklist Prompts */}
-              {missingFields.length > 0 && (
-                <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2">
-                  <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
-                    <AlertCircle className="w-4 h-4 text-emerald-700" />
-                    <span>Suggestions to reach 100% profile strength:</span>
+                  <div className="space-y-1">
+                    <div className="text-sm font-bold text-slate-800">
+                      No matching recommendations found based on your current profile.
+                    </div>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                      Add your skills, target job title, and preferred location to receive personalized opening matches.
+                    </p>
                   </div>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {missingFields.map((field) => (
-                      <span
-                        key={field}
-                        className="px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-900 text-xs font-medium shadow-2xs"
-                      >
-                        + Add {field}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Section 1: Personal & Contact Information */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-                <User className="w-4 h-4 text-emerald-700" />
-                <span>Personal &amp; Contact Information</span>
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Professional Headline</label>
-                  <input
-                    type="text"
-                    value={profileForm.headline}
-                    onChange={(e) => setProfileForm({ ...profileForm, headline: e.target.value })}
-                    placeholder="e.g. Senior Full Stack Engineer"
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={profileForm.phone}
-                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Current Location</label>
-                  <input
-                    type="text"
-                    value={profileForm.location}
-                    onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
-                    placeholder="e.g. Bangalore, India"
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">About / Bio</label>
-                  <textarea
-                    rows={3}
-                    value={profileForm.about}
-                    onChange={(e) => setProfileForm({ ...profileForm, about: e.target.value })}
-                    placeholder="Summarize your experience, engineering passions, and career strengths..."
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Career & Role Preferences */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-700" />
-                <span>Career Preferences &amp; Target Roles</span>
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Job Role</label>
-                  <input
-                    type="text"
-                    value={profileForm.desiredRole || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, desiredRole: e.target.value })}
-                    placeholder="e.g. Lead Frontend Engineer, Full Stack Architect"
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Work Locations</label>
-                  <input
-                    type="text"
-                    value={profileForm.preferredLocation || ''}
-                    onChange={(e) => setProfileForm({ ...profileForm, preferredLocation: e.target.value })}
-                    placeholder="e.g. Bangalore, Mumbai, Remote"
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Work Mode Preference</label>
-                  <select
-                    value={profileForm.workPreference || 'Hybrid'}
-                    onChange={(e) => setProfileForm({ ...profileForm, workPreference: e.target.value as any })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-hidden focus:border-emerald-600"
-                  >
-                    <option value="Remote">Remote</option>
-                    <option value="Hybrid">Hybrid</option>
-                    <option value="On-site">On-site</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Availability</label>
-                  <select
-                    value={profileForm.availability || 'Immediate'}
-                    onChange={(e) => setProfileForm({ ...profileForm, availability: e.target.value as any })}
-                    className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 text-slate-700 focus:outline-hidden focus:border-emerald-600"
-                  >
-                    <option value="Immediate">Immediate (Within 2 Weeks)</option>
-                    <option value="1 Month">1 Month</option>
-                    <option value="2 Months">2 Months</option>
-                    <option value="Serving Notice">Serving Notice Period</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 3: Skills & Competencies */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                <span>Skills &amp; Competencies</span>
-              </h3>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddSkill();
-                    }
-                  }}
-                  placeholder="Type a skill (e.g. React, Python, Product Strategy) and press Add..."
-                  className="flex-1 px-3 py-2 text-xs sm:text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-hidden focus:border-emerald-600"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddSkill}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add</span>
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                {profileForm.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold"
-                  >
-                    <span>{skill}</span>
+                  <div className="flex items-center justify-center gap-2.5 flex-wrap pt-1">
                     <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(skill)}
-                      className="text-emerald-700 hover:text-emerald-950 p-0.5 rounded-full hover:bg-emerald-100 cursor-pointer"
-                      title={`Remove ${skill}`}
+                      onClick={() => navigate('/profile')}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer min-h-[44px]"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <User className="w-4 h-4" />
+                      <span>Update Profile Skills</span>
                     </button>
-                  </span>
+                    <button
+                      onClick={() => navigate('/jobs')}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer min-h-[44px]"
+                    >
+                      <Briefcase className="w-4 h-4 text-slate-500" />
+                      <span>Browse All Jobs</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN (Career Readiness & Learning Overview) */}
+          <div className="space-y-6 sm:space-y-8">
+
+            {/* SECTION: CAREER READINESS CHECKLIST (Requirement 9) */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#004D40]" />
+                  <h2 className="text-sm sm:text-base font-bold text-slate-900">Career Readiness</h2>
+                </div>
+                <span className="text-xs font-bold text-[#004D40]">
+                  {careerReadinessItems.filter((i) => i.isCompleted).length} / {careerReadinessItems.length} Done
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-500">
+                Actionable steps based on your actual profile to maximize employer responses.
+              </p>
+
+              <div className="space-y-2.5">
+                {careerReadinessItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`p-3.5 rounded-2xl border transition-all ${
+                      item.isCompleted
+                        ? 'bg-teal-50/40 border-teal-100'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        {item.isCompleted ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#004D40] mt-0.5 shrink-0" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-slate-300 mt-0.5 shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            {item.title}
+                          </div>
+                          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={item.action}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors shrink-0 cursor-pointer ${
+                          item.isCompleted
+                            ? 'text-[#004D40] hover:bg-teal-100/50'
+                            : 'bg-[#061226] text-white hover:bg-[#0b3b2c]'
+                        }`}
+                      >
+                        {item.actionLabel}
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Section 4: Resume Document */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-emerald-700" />
-                <span>Resume Document</span>
-              </h3>
-
-              <div className="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">
-                      {profileForm.resumeName || 'No resume uploaded yet'}
-                    </div>
-                    <div className="text-[11px] text-slate-500">
-                      PDF, DOCX up to 10MB &bull; Parsed for personalized recommendations
-                    </div>
-                  </div>
+            {/* SECTION: MY LEARNING (Requirement 8) */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-purple-700" />
+                  <h2 className="text-sm sm:text-base font-bold text-slate-900">My Learning</h2>
                 </div>
 
-                <label className="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:border-emerald-600 text-slate-700 text-xs font-bold shadow-2xs cursor-pointer flex items-center gap-1.5">
-                  <Upload className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>{profileForm.resumeName ? 'Replace Resume' : 'Upload Resume'}</span>
-                  <input
-                    type="file"
-                    accept=".pdf,.docx,.doc"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setProfileForm({
-                          ...profileForm,
-                          resumeName: file.name,
-                        });
-                        showToast('success', 'Resume Attached', `${file.name} attached to your profile.`);
-                      }
-                    }}
-                  />
-                </label>
+                <button
+                  onClick={() => navigate('/learning')}
+                  className="text-xs font-bold text-purple-700 hover:text-purple-800 transition-colors cursor-pointer"
+                >
+                  Explore Learning &rarr;
+                </button>
               </div>
-            </div>
 
-            {/* Bottom Save Bar */}
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save Profile Changes</span>
-              </button>
+              {enrolledCourses.length > 0 ? (
+                <div className="space-y-3">
+                  {enrolledCourses.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2.5"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            {item.title}
+                          </h3>
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            Status: <span className="font-semibold text-purple-700">{item.enrollment.status}</span>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-bold shrink-0">
+                          {item.enrollment.progressPercentage}%
+                        </span>
+                      </div>
+
+                      {/* Course progress bar */}
+                      <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-purple-600 h-1.5 rounded-full transition-all duration-300"
+                          style={{ width: `${item.enrollment.progressPercentage}%` }}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => navigate('/learning')}
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-purple-300 text-purple-900 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <span>Continue Learning</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Strict requested empty state */
+                <div className="p-6 rounded-2xl border border-dashed border-slate-200 text-center space-y-3 bg-slate-50/50">
+                  <div className="w-10 h-10 mx-auto rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-700">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs sm:text-sm font-bold text-slate-800">
+                      Your learning journey starts here.
+                    </div>
+                    <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                      Build job-relevant skills, improve career readiness, and prepare for interviews.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate('/learning')}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer min-h-[40px]"
+                  >
+                    <span>Explore Learning</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
-          </form>
-        )}
+          </div>
+        </div>
 
       </div>
 
-      {/* Apply Modal */}
-      <ApplyModal
-        job={selectedJobForApply}
-        isOpen={Boolean(selectedJobForApply)}
-        onClose={() => setSelectedJobForApply(null)}
-        navigate={navigate}
-      />
+      {/* Apply Modal for recommended jobs */}
+      {selectedJobForApply && (
+        <ApplyModal
+          job={selectedJobForApply}
+          isOpen={Boolean(selectedJobForApply)}
+          onClose={() => setSelectedJobForApply(null)}
+          navigate={navigate}
+        />
+      )}
     </div>
   );
 };

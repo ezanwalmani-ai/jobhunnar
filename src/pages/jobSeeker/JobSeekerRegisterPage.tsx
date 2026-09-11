@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
+import { ScrollReveal, EASE_PREMIUM } from '../../lib/motion';
 import {
   Eye,
   EyeOff,
@@ -17,7 +19,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { INDIAN_STATES_AND_UTS, POPULAR_CITIES } from '../../data/locations';
 import { GoogleAuthModal } from '../../components/GoogleAuthModal';
-import { HunarLogo } from '../../components/HunarLogo';
+import { AbhiJobsLogo } from '../../components/AbhiJobsLogo';
 import { PasswordStrengthIndicator, usePasswordStrength } from '../../components/PasswordStrengthIndicator';
 
 interface JobSeekerRegisterPageProps {
@@ -178,17 +180,17 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
     return (
       <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-slate-50">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200">
-          <div className="w-20 h-20 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#062e22] flex items-center justify-center mx-auto shadow-sm">
-            <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+          <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-200 text-[#061226] flex items-center justify-center mx-auto shadow-sm">
+            <CheckCircle2 className="w-10 h-10 text-[#004D40]" />
           </div>
 
           <div className="space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-900 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100/80 text-[#004D40] text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-[#004D40]" />
               Account Created Successfully
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Welcome to HUNAR, {firstName}!
+              Welcome to ABHI JOBS, {firstName}!
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
               Your account is ready. Now let's build your professional profile so we can show you more relevant opportunities.
@@ -197,7 +199,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-600 space-y-2">
             <div className="flex items-center gap-2 font-semibold text-slate-900">
-              <ShieldCheck className="w-4 h-4 text-emerald-700" />
+              <ShieldCheck className="w-4 h-4 text-[#004D40]" />
               <span>Job Seeker Credentials Registered</span>
             </div>
             <p className="text-slate-500">
@@ -208,7 +210,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
           <div className="space-y-3 pt-2">
             <button
               onClick={() => navigate('/job-seeker/onboarding')}
-              className="w-full py-3.5 px-6 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
             >
               <span>Complete My Profile</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -230,20 +232,31 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
     <div className="min-h-screen bg-slate-50 py-8 sm:py-14 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
       <div className="max-w-xl w-full mx-auto space-y-8">
         {/* Header Title Section */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 text-xs font-semibold mb-2">
-            <span>Job Seeker Sign Up</span>
+        <ScrollReveal direction="up" distance={16}>
+          <div className="text-center space-y-3">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="inline-block cursor-pointer focus:outline-hidden hover:opacity-90 transition-opacity"
+              aria-label="ABHI JOBS Home"
+            >
+              <AbhiJobsLogo variant="horizontal" theme="color" size="lg" className="mx-auto" />
+            </button>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-[#061226] text-xs font-semibold">
+              <span>Job Seeker Sign Up</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Create your ABHI JOBS account
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 max-w-md mx-auto leading-relaxed">
+              Create your account in minutes and discover opportunities matched to your skills and career goals.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Create your HUNAR account
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 max-w-md mx-auto leading-relaxed">
-            Create your account in minutes and discover opportunities matched to your skills and career goals.
-          </p>
-        </div>
+        </ScrollReveal>
 
         {/* Card Container */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-6">
+        <ScrollReveal direction="up" delay={0.06} distance={18}>
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-6">
           {/* General Error Banner */}
           {errors.general && (
             <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
@@ -306,7 +319,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: '' }));
                 }}
                 placeholder="Enter your full name"
-                className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22] transition-all ${
+                className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061226] transition-all ${
                   errors.fullName ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
                 }`}
               />
@@ -326,7 +339,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
                 }}
                 placeholder="Enter your email address"
-                className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22] transition-all ${
+                className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061226] transition-all ${
                   errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
                 }`}
               />
@@ -342,7 +355,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-semibold text-[#004D40] hover:text-[#061226] flex items-center gap-1 cursor-pointer"
                 >
                   {showPassword ? (
                     <>
@@ -367,7 +380,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                     if (errors.password) setErrors((prev) => ({ ...prev, password: '' }));
                   }}
                   placeholder="Create a password"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22] transition-all ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061226] transition-all ${
                     errors.password ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
                   }`}
                 />
@@ -391,7 +404,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
                 Mobile Number <span className="text-red-500">*</span>
               </label>
-              <div className="flex rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-[#062e22] transition-all">
+              <div className="flex rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-[#061226] transition-all">
                 <div className="bg-slate-100 border-r border-slate-300 px-3 py-3 flex items-center text-xs sm:text-sm font-semibold text-slate-700">
                   {countryCode}
                 </div>
@@ -418,7 +431,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
               <select
                 value={workStatus}
                 onChange={(e) => setWorkStatus(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#062e22] cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#061226] cursor-pointer"
               >
                 <option value="Working">Working</option>
                 <option value="Looking for a job">Looking for a job</option>
@@ -438,14 +451,14 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   onClick={() => setExperienceLevel('experienced')}
                   className={`p-4 rounded-2xl border text-left transition-all flex items-start gap-3.5 cursor-pointer ${
                     experienceLevel === 'experienced'
-                      ? 'border-[#062e22] bg-emerald-50/50 ring-2 ring-[#062e22]'
+                      ? 'border-[#FF2B1A] bg-red-50/30 ring-2 ring-[#FF2B1A]'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
                       experienceLevel === 'experienced'
-                        ? 'bg-[#062e22] text-white'
+                        ? 'bg-[#061226] text-white'
                         : 'bg-slate-100 text-slate-600'
                     }`}
                   >
@@ -462,14 +475,14 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   onClick={() => setExperienceLevel('fresher')}
                   className={`p-4 rounded-2xl border text-left transition-all flex items-start gap-3.5 cursor-pointer ${
                     experienceLevel === 'fresher'
-                      ? 'border-[#062e22] bg-emerald-50/50 ring-2 ring-[#062e22]'
+                      ? 'border-[#FF2B1A] bg-red-50/30 ring-2 ring-[#FF2B1A]'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
                       experienceLevel === 'fresher'
-                        ? 'bg-[#062e22] text-white'
+                        ? 'bg-[#061226] text-white'
                         : 'bg-slate-100 text-slate-600'
                     }`}
                   >
@@ -498,7 +511,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                     if (errors.currentCity) setErrors((prev) => ({ ...prev, currentCity: '' }));
                   }}
                   placeholder="Enter your current city"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22] transition-all ${
+                  className={`w-full px-4 py-3 rounded-xl border text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061226] transition-all ${
                     errors.currentCity ? 'border-red-400 bg-red-50/20' : 'border-slate-300'
                   }`}
                 />
@@ -546,12 +559,12 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                             setStateSearchQuery('');
                             if (errors.currentState) setErrors((prev) => ({ ...prev, currentState: '' }));
                           }}
-                          className={`w-full text-left px-4 py-2.5 text-xs hover:bg-emerald-50 hover:text-emerald-950 transition-colors flex items-center justify-between cursor-pointer ${
-                            currentState === st ? 'bg-emerald-50 font-bold text-emerald-900' : 'text-slate-700'
+                          className={`w-full text-left px-4 py-2.5 text-xs hover:bg-teal-50 hover:text-[#061226] transition-colors flex items-center justify-between cursor-pointer ${
+                            currentState === st ? 'bg-teal-50 font-bold text-[#004D40]' : 'text-slate-700'
                           }`}
                         >
                           <span>{st}</span>
-                          {currentState === st && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                          {currentState === st && <Check className="w-3.5 h-3.5 text-[#004D40]" />}
                         </button>
                       ))}
                       {filteredStates.length === 0 && (
@@ -571,7 +584,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   type="checkbox"
                   checked={marketingConsent}
                   onChange={(e) => setMarketingConsent(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-[#004D40] focus:ring-[#004D40] cursor-pointer"
                 />
                 <span className="text-xs text-slate-700 leading-relaxed">
                   Send me important updates &amp; promotions via SMS, email, and{' '}
@@ -598,14 +611,14 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                     setTermsAccepted(e.target.checked);
                     if (errors.terms) setErrors((prev) => ({ ...prev, terms: '' }));
                   }}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-[#062e22] focus:ring-[#062e22] cursor-pointer"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-[#061226] focus:ring-[#061226] cursor-pointer"
                 />
                 <span className="text-xs text-slate-700 leading-relaxed">
-                  By clicking Register, you agree to HUNAR's{' '}
+                  By clicking Register, you agree to ABHI JOBS's{' '}
                   <button
                     type="button"
                     onClick={() => navigate('/terms')}
-                    className="font-bold text-[#062e22] hover:underline cursor-pointer"
+                    className="font-bold text-[#061226] hover:underline cursor-pointer"
                   >
                     Terms and Conditions
                   </button>{' '}
@@ -613,7 +626,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                   <button
                     type="button"
                     onClick={() => navigate('/privacy')}
-                    className="font-bold text-[#062e22] hover:underline cursor-pointer"
+                    className="font-bold text-[#061226] hover:underline cursor-pointer"
                   >
                     Privacy Policy
                   </button>
@@ -630,7 +643,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
                 disabled={!termsAccepted || isSubmitting}
                 className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2 ${
                   termsAccepted && !isSubmitting
-                    ? 'bg-[#062e22] hover:bg-[#0b3b2c] text-white hover:shadow-lg active:scale-[0.99] cursor-pointer'
+                    ? 'bg-[#FF2B1A] hover:bg-[#e02213] text-white hover:shadow-lg active:scale-[0.99] cursor-pointer'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-200'
                 }`}
               >
@@ -655,12 +668,12 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="font-bold text-[#062e22] hover:underline cursor-pointer"
+              className="font-bold text-[#061226] hover:underline cursor-pointer"
             >
               Sign In
             </button>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Google Auth Modal */}

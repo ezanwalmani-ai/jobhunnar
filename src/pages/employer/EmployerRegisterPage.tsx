@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { ScrollReveal, EASE_PREMIUM } from '../../lib/motion';
 import {
   Building2,
   Briefcase,
@@ -13,7 +15,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { HunarLogo } from '../../components/HunarLogo';
+import { AbhiJobsLogo } from '../../components/AbhiJobsLogo';
 import { PasswordStrengthIndicator, usePasswordStrength } from '../../components/PasswordStrengthIndicator';
 
 interface EmployerRegisterPageProps {
@@ -92,21 +94,32 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
       <div className="max-w-2xl w-full mx-auto space-y-8">
         
         {/* Header Branding */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold">
-            <Building2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Employer &amp; Recruiter Registration</span>
+        <ScrollReveal direction="up" distance={16}>
+          <div className="text-center space-y-3">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="inline-block cursor-pointer focus:outline-hidden hover:opacity-90 transition-opacity"
+              aria-label="ABHI JOBS Home"
+            >
+              <AbhiJobsLogo variant="horizontal" theme="color" size="lg" className="mx-auto" />
+            </button>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold">
+              <Building2 className="w-3.5 h-3.5 text-[#FF2B1A]" />
+              <span>Employer &amp; Recruiter Registration</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Register Your Company on ABHI JOBS
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
+              Create an organization account to post verified job openings, review qualified applicants, and access skilled talent.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Register Your Company on HUNAR
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
-            Create an organization account to post verified job openings, review qualified applicants, and access skilled talent.
-          </p>
-        </div>
+        </ScrollReveal>
 
         {/* Form Card */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-6">
+        <ScrollReveal direction="up" delay={0.06} distance={18}>
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-6">
           {errors.form && (
             <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
@@ -131,7 +144,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Priya Mehta"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                   {errors.fullName && <p className="text-[11px] text-red-600 mt-1">{errors.fullName}</p>}
                 </div>
@@ -145,7 +158,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="priya@company.com"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                   {errors.email && <p className="text-[11px] text-red-600 mt-1">{errors.email}</p>}
                 </div>
@@ -161,7 +174,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                 </div>
 
@@ -174,7 +187,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://yourcompany.com"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                 </div>
               </div>
@@ -196,7 +209,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="e.g. Apex Technologies Pvt Ltd"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                   {errors.companyName && <p className="text-[11px] text-red-600 mt-1">{errors.companyName}</p>}
                 </div>
@@ -208,7 +221,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   <select
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#062e22] cursor-pointer"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#061226] cursor-pointer"
                   >
                     <option value="Technology & IT Services">Technology &amp; IT Services</option>
                     <option value="Banking & Financial Services">Banking &amp; Financial Services</option>
@@ -231,7 +244,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="e.g. Bangalore, Karnataka"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                   />
                 </div>
 
@@ -242,7 +255,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   <select
                     value={companySize}
                     onChange={(e) => setCompanySize(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#062e22] cursor-pointer"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#061226] cursor-pointer"
                   >
                     <option value="1-10 employees">1-10 employees</option>
                     <option value="11-50 employees">11-50 employees</option>
@@ -264,7 +277,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-xs text-emerald-800 hover:text-emerald-950 font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-[#004D40] hover:text-[#061226] font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -275,7 +288,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#062e22]"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#061226]"
                 />
                 {errors.password && <p className="text-[11px] text-red-600 mt-1">{errors.password}</p>}
               </div>
@@ -296,14 +309,14 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   type="checkbox"
                   checked={termsAccepted}
                   onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded text-[#062e22] focus:ring-[#062e22] border-slate-300 cursor-pointer"
+                  className="mt-0.5 w-4 h-4 rounded text-[#004D40] focus:ring-[#061226] border-slate-300 cursor-pointer"
                 />
                 <span>
-                  I confirm that I represent this organization and agree to HUNAR's{' '}
+                  I confirm that I represent this organization and agree to ABHI JOBS's{' '}
                   <button
                     type="button"
                     onClick={() => navigate('/terms')}
-                    className="text-[#062e22] font-semibold underline hover:text-black"
+                    className="text-[#004D40] font-semibold underline hover:text-black"
                   >
                     Terms of Service
                   </button>{' '}
@@ -311,7 +324,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
                   <button
                     type="button"
                     onClick={() => navigate('/privacy')}
-                    className="text-[#062e22] font-semibold underline hover:text-black"
+                    className="text-[#004D40] font-semibold underline hover:text-black"
                   >
                     Privacy Policy
                   </button>
@@ -326,7 +339,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 px-6 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -350,7 +363,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="font-bold text-[#062e22] hover:underline cursor-pointer"
+                className="font-bold text-[#004D40] hover:underline cursor-pointer"
               >
                 Sign In here
               </button>
@@ -360,13 +373,13 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
               <button
                 type="button"
                 onClick={() => navigate('/register/job-seeker')}
-                className="font-bold text-emerald-700 hover:underline cursor-pointer"
+                className="font-bold text-[#004D40] hover:underline cursor-pointer"
               >
                 Register as Job Seeker
               </button>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );

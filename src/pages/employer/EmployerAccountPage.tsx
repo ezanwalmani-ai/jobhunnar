@@ -37,7 +37,7 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
 
           <button
             onClick={() => navigate('/employer/dashboard')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
           >
             <span>Go to Dashboard</span>
             <ArrowRight className="w-4 h-4" />
@@ -76,7 +76,7 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <ShieldCheck className="w-4 h-4 text-[#004D40]" />
                 Active Role: Verified Employer
               </span>
               <p className="text-xs text-slate-500 mt-1">
@@ -104,7 +104,7 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
                   type="checkbox"
                   checked={notificationsEnabled}
                   onChange={(e) => setNotificationsEnabled(e.target.checked)}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                  className="rounded text-[#004D40] focus:ring-[#004D40] h-4 w-4"
                 />
               </label>
 
@@ -117,7 +117,7 @@ export const EmployerAccountPage: React.FC<EmployerAccountPageProps> = ({ naviga
                   type="checkbox"
                   checked={emailAlerts}
                   onChange={(e) => setEmailAlerts(e.target.checked)}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                  className="rounded text-[#004D40] focus:ring-[#004D40] h-4 w-4"
                 />
               </label>
             </div>

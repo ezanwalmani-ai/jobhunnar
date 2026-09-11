@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ToastContainer } from './components/Toast';
 import { RouteProtectionNotice } from './components/RouteProtectionNotice';
+import { EASE_PREMIUM } from './lib/motion';
 
 // Public & Shared Pages
 import { HomePage } from './pages/HomePage';
@@ -12,6 +14,7 @@ import { JobDetailPage } from './pages/JobDetailPage';
 import { CandidatesPage } from './pages/CandidatesPage';
 import { CompaniesPage } from './pages/CompaniesPage';
 import { AboutPage } from './pages/AboutPage';
+import { HowItWorksPage } from './pages/HowItWorksPage';
 import { ContactPage } from './pages/ContactPage';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
@@ -22,9 +25,11 @@ import { JobSeekerApplicationsPage } from './pages/jobSeeker/JobSeekerApplicatio
 import { JobSeekerSavedJobsPage } from './pages/jobSeeker/JobSeekerSavedJobsPage';
 import { JobSeekerProfilePage } from './pages/jobSeeker/JobSeekerProfilePage';
 import { JobSeekerUpskillPage } from './pages/jobSeeker/JobSeekerUpskillPage';
+import { JobSeekerResumePage } from './pages/jobSeeker/JobSeekerResumePage';
 import { JobSeekerRegisterPage } from './pages/jobSeeker/JobSeekerRegisterPage';
 import { JobSeekerOnboardingPage } from './pages/jobSeeker/JobSeekerOnboardingPage';
 import { LoginPage } from './pages/auth/LoginPage';
+import { RoleSelectionPage } from './pages/auth/RoleSelectionPage';
 import { PasswordCheckerDemoPage } from './pages/PasswordCheckerDemoPage';
 
 // Employer Portal Pages
@@ -38,6 +43,7 @@ import { PostJobPage } from './pages/employer/PostJobPage';
 
 // Admin Portal
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function AppContent() {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
@@ -62,6 +68,13 @@ function AppContent() {
       return;
     }
 
+    if (path.startsWith('/applications/') && path !== '/applications/') {
+      const id = path.replace('/applications/', '');
+      setRouteParams({ id });
+      setCurrentRoute('/applications/:id');
+      return;
+    }
+
     if (path.startsWith('/jobs?')) {
       const urlParams = new URLSearchParams(path.split('?')[1]);
       setRouteParams({
@@ -82,17 +95,47 @@ function AppContent() {
   const isAdmin = isAuthenticated && currentRole === 'admin';
 
   // Role Protection Interceptors:
+  // 0. If unauthenticated user tries to access private routes -> Redirect to Login
+  const isPrivateRoute =
+    currentRoute === '/dashboard' ||
+    currentRoute.startsWith('/dashboard/') ||
+    currentRoute === '/job-seeker/dashboard' ||
+    currentRoute === '/applications' ||
+    currentRoute.startsWith('/applications/') ||
+    currentRoute === '/saved-jobs' ||
+    currentRoute === '/profile' ||
+    currentRoute === '/job-seeker/profile' ||
+    currentRoute === '/learning' ||
+    currentRoute === '/career-tools' ||
+    currentRoute === '/employer-dashboard' ||
+    currentRoute.startsWith('/employer/') ||
+    currentRoute === '/company' ||
+    currentRoute === '/my-jobs';
+
+  if (!isAuthenticated && isPrivateRoute) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#F7F8FA] text-[#101828] font-sans">
+        <Navbar currentRoute={currentRoute} navigate={navigate} />
+        <main className="flex-1">
+          <LoginPage navigate={navigate} redirectMessage="Please sign in to access your portal." />
+        </main>
+        <Footer navigate={navigate} />
+        <ToastContainer />
+      </div>
+    );
+  }
+
   // 1. If Job Seeker tries to access Employer routes
   if (currentRoute.startsWith('/employer') && isJobSeeker) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <div className="min-h-screen flex flex-col bg-[#F7F8FA] text-[#101828] font-sans">
         <Navbar currentRoute={currentRoute} navigate={navigate} />
         <main className="flex-1">
           <RouteProtectionNotice
             attemptedRoute={currentRoute}
             requiredRole="employer"
             currentRole="job_seeker"
-            onRedirectToAllowed={() => navigate('/job-seeker/dashboard')}
+            onRedirectToAllowed={() => navigate('/dashboard')}
             onSignOut={() => {
               logout();
               navigate('/login');
@@ -107,19 +150,29 @@ function AppContent() {
 
   // 2. If Employer tries to access Job Seeker-only routes
   if (
-    (currentRoute.startsWith('/job-seeker') || currentRoute.startsWith('/candidate')) &&
+    (currentRoute.startsWith('/job-seeker') ||
+      currentRoute.startsWith('/candidate') ||
+      currentRoute.startsWith('/applications') ||
+      currentRoute === '/saved-jobs' ||
+      currentRoute === '/profile' ||
+      currentRoute === '/learning' ||
+      currentRoute === '/career-tools') &&
     currentRoute !== '/job-seeker/onboarding' &&
     isEmployer
   ) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <div className="min-h-screen flex flex-col bg-[#F7F8FA] text-[#101828] font-sans">
         <Navbar currentRoute={currentRoute} navigate={navigate} />
         <main className="flex-1">
           <RouteProtectionNotice
             attemptedRoute={currentRoute}
             requiredRole="job_seeker"
             currentRole="employer"
-            onRedirectToAllowed={() => navigate('/employer/dashboard')}
+            onRedirectToAllowed={() =>
+              currentRoute.startsWith('/applications')
+                ? navigate('/employer/applications')
+                : navigate('/employer/dashboard')
+            }
             onSignOut={() => {
               logout();
               navigate('/login');
@@ -163,6 +216,18 @@ function AppContent() {
       case '/about':
         return <AboutPage navigate={navigate} />;
 
+      case '/how-it-works':
+      case '/how-abhi-jobs-works':
+        return <HowItWorksPage navigate={navigate} />;
+
+      case '/employers':
+      case '/for-employers':
+        return isEmployer ? (
+          <EmployerDashboard navigate={navigate} />
+        ) : (
+          <EmployerRegisterPage navigate={navigate} />
+        );
+
       case '/contact':
         return <ContactPage navigate={navigate} />;
 
@@ -176,6 +241,12 @@ function AppContent() {
         return <PrivacyPolicyPage navigate={navigate} />;
 
       // Auth & Onboarding
+      case '/get-started':
+      case '/role-selection':
+      case '/join':
+      case '/select-role':
+        return <RoleSelectionPage navigate={navigate} />;
+
       case '/register/job-seeker':
       case '/register':
         return <JobSeekerRegisterPage navigate={navigate} />;
@@ -211,6 +282,9 @@ function AppContent() {
       case '/job-seeker/applications':
         return <JobSeekerApplicationsPage navigate={navigate} />;
 
+      case '/applications/:id':
+        return <JobSeekerApplicationsPage navigate={navigate} initialSelectedAppId={routeParams.id} />;
+
       case '/saved-jobs':
       case '/job-seeker/saved-jobs':
         return <JobSeekerSavedJobsPage navigate={navigate} />;
@@ -224,9 +298,33 @@ function AppContent() {
       case '/job-seeker/upskill':
         return <JobSeekerUpskillPage navigate={navigate} />;
 
+      case '/career-tools':
+      case '/job-seeker/career-tools':
+      case '/job-seeker/resume':
+        return <JobSeekerResumePage navigate={navigate} />;
+
+      case '/settings':
+      case '/job-seeker/settings':
+        return isEmployer ? (
+          <EmployerAccountPage navigate={navigate} />
+        ) : (
+          <JobSeekerProfilePage navigate={navigate} />
+        );
+
+      case '/support':
+      case '/help':
+        return <ContactPage navigate={navigate} />;
+
       // Employer Portal Dedicated Routes
       case '/employer/dashboard':
         return <EmployerDashboard navigate={navigate} />;
+
+      case '/employer/analytics':
+      case '/employer/insights':
+        return <EmployerDashboard navigate={navigate} />;
+
+      case '/employer/settings':
+        return <EmployerAccountPage navigate={navigate} />;
 
       case '/employer/jobs':
         return <EmployerJobsPage navigate={navigate} />;
@@ -251,18 +349,38 @@ function AppContent() {
       case '/admin':
         return <AdminDashboard navigate={navigate} />;
 
+      case '/404':
+        return <NotFoundPage navigate={navigate} />;
+
       default:
-        return <HomePage navigate={navigate} />;
+        // If route is explicitly home or empty, render HomePage, otherwise show branded 404
+        if (!currentRoute || currentRoute === '/' || currentRoute === '') {
+          return <HomePage navigate={navigate} />;
+        }
+        return <NotFoundPage navigate={navigate} />;
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200 selection:text-emerald-950">
+    <div className="min-h-screen flex flex-col bg-[#F7F8FA] text-[#101828] font-sans selection:bg-[#FF2B1A] selection:text-white">
       {/* Top Navbar */}
       <Navbar currentRoute={currentRoute} navigate={navigate} />
 
-      {/* Dynamic Page Content */}
-      <main className="flex-1">{renderCurrentPage()}</main>
+      {/* Dynamic Page Content with Smooth Transition */}
+      <main className="flex-1 w-full overflow-x-clip">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentRoute}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22, ease: EASE_PREMIUM }}
+            className="w-full flex-1 flex flex-col"
+          >
+            {renderCurrentPage()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
       {/* Bottom Footer */}
       <Footer navigate={navigate} />

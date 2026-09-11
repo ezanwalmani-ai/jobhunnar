@@ -8,6 +8,7 @@ import {
   Course,
   Application,
   ApplicationStatus,
+  ApplicationTimelineEvent,
   Interview,
   NotificationItem,
   SupportTicket,
@@ -89,6 +90,7 @@ interface AppContextType {
   saveJob: (jobId: string) => void;
   unsaveJob: (jobId: string) => void;
   applyToJob: (jobId: string, coverNote?: string, selectedResume?: string) => Promise<boolean>;
+  withdrawApplication: (applicationId: string, reason?: string) => boolean;
 
   // Employer / Job Actions
   createJob: (newJob: Omit<Job, 'id' | 'postedDate' | 'applicantsCount' | 'viewsCount' | 'isVerifiedCompany'>) => Job;
@@ -128,7 +130,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // 1. Initial State from localStorage or default mocks (No fake marketplace data)
   const [currentUser, setCurrentUser] = useState<User>(() => {
     try {
-      const stored = localStorage.getItem('hunar_currentUser');
+      const stored = localStorage.getItem('abhijobs_currentUser') || localStorage.getItem('hunar_currentUser');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed.role === 'candidate') parsed.role = 'job_seeker';
@@ -147,7 +149,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [users, setUsers] = useState<User[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_users');
+      const stored = localStorage.getItem('abhijobs_users') || localStorage.getItem('hunar_users');
       if (stored) {
         const parsed = JSON.parse(stored);
         return parsed.map((u: any) => (u.role === 'candidate' ? { ...u, role: 'job_seeker' } : u));
@@ -160,7 +162,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [candidates, setCandidates] = useState<CandidateProfile[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_candidates');
+      const stored = localStorage.getItem('abhijobs_candidates') || localStorage.getItem('hunar_candidates');
       if (stored) {
         const list: CandidateProfile[] = JSON.parse(stored);
         return list.filter((c) => !['cand-1', 'cand-2', 'cand-3', 'cand-4', 'cand-5', 'cand-aarav'].includes(c.id));
@@ -173,7 +175,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [companies, setCompanies] = useState<EmployerProfile[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_companies');
+      const stored = localStorage.getItem('abhijobs_companies') || localStorage.getItem('hunar_companies');
       if (stored) {
         const list = JSON.parse(stored);
         const filtered = list.filter((c: any) => !['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5'].includes(c.id));
@@ -196,7 +198,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [jobs, setJobs] = useState<Job[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_jobs');
+      const stored = localStorage.getItem('abhijobs_jobs') || localStorage.getItem('hunar_jobs');
       if (stored) {
         const list: Job[] = JSON.parse(stored);
         return list.filter((j) => !['job-1', 'job-2', 'job-3', 'job-4', 'job-5'].includes(j.id));
@@ -209,7 +211,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [courses, setCourses] = useState<Course[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_courses');
+      const stored = localStorage.getItem('abhijobs_courses') || localStorage.getItem('hunar_courses');
       return stored ? JSON.parse(stored) : INITIAL_COURSES;
     } catch {
       return INITIAL_COURSES;
@@ -218,7 +220,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [applications, setApplications] = useState<Application[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_applications');
+      const stored = localStorage.getItem('abhijobs_applications') || localStorage.getItem('hunar_applications');
       if (stored) {
         const list: Application[] = JSON.parse(stored);
         return list.filter((a) => !['app-1', 'app-2', 'app-3', 'app-4'].includes(a.id));
@@ -231,7 +233,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [interviews, setInterviews] = useState<Interview[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_interviews');
+      const stored = localStorage.getItem('abhijobs_interviews') || localStorage.getItem('hunar_interviews');
       if (stored) {
         const list: Interview[] = JSON.parse(stored);
         return list.filter((i) => !['int-1', 'int-2', 'int-3'].includes(i.id));
@@ -244,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_notifications');
+      const stored = localStorage.getItem('abhijobs_notifications') || localStorage.getItem('hunar_notifications');
       return stored ? JSON.parse(stored) : INITIAL_NOTIFICATIONS;
     } catch {
       return INITIAL_NOTIFICATIONS;
@@ -253,7 +255,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_supportTickets');
+      const stored = localStorage.getItem('abhijobs_supportTickets') || localStorage.getItem('hunar_supportTickets');
       return stored ? JSON.parse(stored) : INITIAL_SUPPORT_TICKETS;
     } catch {
       return INITIAL_SUPPORT_TICKETS;
@@ -262,7 +264,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [analyticsEvents, setAnalyticsEvents] = useState<AnalyticsEvent[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_analytics');
+      const stored = localStorage.getItem('abhijobs_analytics') || localStorage.getItem('hunar_analytics');
       return stored ? JSON.parse(stored) : INITIAL_ANALYTICS;
     } catch {
       return INITIAL_ANALYTICS;
@@ -271,7 +273,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [savedJobIds, setSavedJobIds] = useState<string[]>(() => {
     try {
-      const stored = localStorage.getItem('hunar_savedJobs');
+      const stored = localStorage.getItem('abhijobs_savedJobs') || localStorage.getItem('hunar_savedJobs');
       if (stored) {
         const parsed = JSON.parse(stored);
         return Array.isArray(parsed) ? parsed.filter((id) => !['job-1', 'job-2', 'job-3', 'job-4', 'job-5'].includes(id)) : [];
@@ -286,43 +288,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sync state to localStorage
   useEffect(() => {
-    localStorage.setItem('hunar_currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('abhijobs_currentUser', JSON.stringify(currentUser));
   }, [currentUser]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_candidates', JSON.stringify(candidates));
+    localStorage.setItem('abhijobs_candidates', JSON.stringify(candidates));
   }, [candidates]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_companies', JSON.stringify(companies));
+    localStorage.setItem('abhijobs_companies', JSON.stringify(companies));
   }, [companies]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_jobs', JSON.stringify(jobs));
+    localStorage.setItem('abhijobs_jobs', JSON.stringify(jobs));
   }, [jobs]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_courses', JSON.stringify(courses));
+    localStorage.setItem('abhijobs_courses', JSON.stringify(courses));
   }, [courses]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_applications', JSON.stringify(applications));
+    localStorage.setItem('abhijobs_applications', JSON.stringify(applications));
   }, [applications]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_interviews', JSON.stringify(interviews));
+    localStorage.setItem('abhijobs_interviews', JSON.stringify(interviews));
   }, [interviews]);
 
+  // Synchronize savedJobIds with currentUser
   useEffect(() => {
-    localStorage.setItem('hunar_savedJobs', JSON.stringify(savedJobIds));
-  }, [savedJobIds]);
+    if (currentUser?.id) {
+      try {
+        const userSavedKey = `abhijobs_savedJobs_${currentUser.id}`;
+        const userStored = localStorage.getItem(userSavedKey) || localStorage.getItem(`hunar_savedJobs_${currentUser.id}`);
+        if (userStored) {
+          const parsed = JSON.parse(userStored);
+          if (Array.isArray(parsed)) {
+            setSavedJobIds(parsed.filter((id) => !['job-1', 'job-2', 'job-3', 'job-4', 'job-5'].includes(id)));
+          }
+        }
+      } catch {
+        // fallback
+      }
+    }
+  }, [currentUser?.id]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_notifications', JSON.stringify(notifications));
+    localStorage.setItem('abhijobs_savedJobs', JSON.stringify(savedJobIds));
+    if (currentUser?.id) {
+      localStorage.setItem(`abhijobs_savedJobs_${currentUser.id}`, JSON.stringify(savedJobIds));
+    }
+  }, [savedJobIds, currentUser?.id]);
+
+  useEffect(() => {
+    localStorage.setItem('abhijobs_notifications', JSON.stringify(notifications));
   }, [notifications]);
 
   useEffect(() => {
-    localStorage.setItem('hunar_users', JSON.stringify(users));
+    localStorage.setItem('abhijobs_users', JSON.stringify(users));
   }, [users]);
 
   // Derived current profiles
@@ -385,11 +408,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     password?: string
   ): Promise<{ success: boolean; error?: string; user?: User }> => {
     const trimmed = email.trim().toLowerCase();
-    const user = users.find((u) => u.email.toLowerCase() === trimmed);
+    const user = users.find((u) => {
+      const uEmail = u.email.toLowerCase();
+      if (uEmail === trimmed) return true;
+      if (trimmed.startsWith('jobseeker@') && uEmail.startsWith('jobseeker@')) return true;
+      if (trimmed.startsWith('employer@') && uEmail.startsWith('employer@')) return true;
+      if (trimmed.startsWith('admin@') && uEmail.startsWith('admin@')) return true;
+      return false;
+    });
     if (!user) {
       return {
         success: false,
-        error: 'No account found with this email address. Please register for a free HUNAR account first.',
+        error: 'No account found with this email address. Please register for a free ABHI JOBS account first.',
       };
     }
     const normalizedRole = user.role === 'candidate' ? 'job_seeker' : user.role;
@@ -500,7 +530,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(
       'success',
       'Account Created Successfully',
-      `Welcome to HUNAR, ${data.name.split(' ')[0]}!`
+      `Welcome to ABHI JOBS, ${data.name.split(' ')[0]}!`
     );
     trackEvent('user_registered', {
       method: data.isGoogle ? 'google' : 'email',
@@ -578,14 +608,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentRole('employer');
 
     try {
-      localStorage.setItem('hunar_users', JSON.stringify(updatedUsers));
-      localStorage.setItem('hunar_companies', JSON.stringify(updatedCompanies));
-      localStorage.setItem('hunar_currentUser', JSON.stringify(newUser));
+      localStorage.setItem('abhijobs_users', JSON.stringify(updatedUsers));
+      localStorage.setItem('abhijobs_companies', JSON.stringify(updatedCompanies));
+      localStorage.setItem('abhijobs_currentUser', JSON.stringify(newUser));
     } catch {
       // fallback
     }
 
-    showToast('success', 'Employer Account Created', `Welcome to HUNAR Employer Hub, ${data.name}!`);
+    showToast('success', 'Employer Account Created', `Welcome to ABHI JOBS Employer Hub, ${data.name}!`);
     trackEvent('employer_register', { email: trimmedEmail, company: data.companyName });
 
     return { success: true, user: newUser, employer: newEmployer };
@@ -598,6 +628,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logout = () => {
     setCurrentUser(null as any);
     setCurrentRole('job_seeker');
+    setSavedJobIds([]);
     showToast('info', 'Signed Out', 'You have been signed out successfully.');
   };
 
@@ -640,7 +671,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return c;
       })
     );
-    showToast('success', 'Profile Updated', 'Your HUNAR profile changes have been saved.');
+    showToast('success', 'Profile Updated', 'Your ABHI JOBS profile changes have been saved.');
     trackEvent('profile_updated', { candidateId: currentCandidate.id });
   };
 
@@ -696,15 +727,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       candidateLocation: currentCandidate.location,
       candidateExperienceYears: currentCandidate.yearsOfExperience,
       candidateSkills: currentCandidate.skills,
-      resumeName: selectedResume || currentCandidate.resumeName || 'HUNAR_Standard_Profile.pdf',
-      coverNote: coverNote || 'Submitted with my verified HUNAR profile.',
+      resumeName: selectedResume || currentCandidate.resumeName || 'ABHI JOBS_Standard_Profile.pdf',
+      coverNote: coverNote || 'Submitted with my verified ABHI JOBS profile.',
       status: 'Applied',
       appliedDate: new Date().toISOString().substring(0, 10),
       timeline: [
         {
           status: 'Applied',
           date: new Date().toISOString().substring(0, 10),
-          note: 'Application received by employer via HUNAR 1-Click Apply',
+          note: 'Application received by employer via ABHI JOBS 1-Click Apply',
         },
       ],
       matchScore: score,
@@ -722,7 +753,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: 'notif-' + Date.now(),
       userId: job.employerId,
       targetRole: 'employer',
-      title: 'New Applicant on HUNAR',
+      title: 'New Applicant on ABHI JOBS',
       message: `${currentCandidate.name} applied for "${job.title}" (${score}% match score).`,
       type: 'application',
       timestamp: 'Just now',
@@ -737,7 +768,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#062e22', '#10b981', '#f59e0b', '#3b82f6'],
+        colors: ['#FF2B1A', '#061226', '#004D40', '#F79009'],
       });
     } catch {
       // fallback safe
@@ -749,6 +780,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       `Successfully applied to ${job.companyName}. Track status in your dashboard.`
     );
     trackEvent('application_submitted', { jobId, score }, jobId);
+    return true;
+  };
+
+  const withdrawApplication = (applicationId: string, reason?: string): boolean => {
+    const targetApp = applications.find((a) => a.id === applicationId);
+    if (!targetApp) return false;
+
+    // Security check: ensure only the owner or authenticated candidate can withdraw
+    const candidateId = currentCandidate?.id;
+    const userEmail = currentUser?.email?.toLowerCase();
+    const isOwner =
+      (candidateId && targetApp.candidateId === candidateId) ||
+      (userEmail && targetApp.candidateEmail?.toLowerCase() === userEmail);
+
+    if (!isOwner && currentRole !== 'admin') {
+      showToast('error', 'Unauthorized', 'You can only withdraw your own applications.');
+      return false;
+    }
+
+    if (targetApp.status === 'Withdrawn') {
+      showToast('warning', 'Already Withdrawn', 'This application has already been withdrawn.');
+      return false;
+    }
+
+    const today = new Date().toISOString().substring(0, 10);
+    const updatedTimeline: ApplicationTimelineEvent[] = [
+      ...targetApp.timeline,
+      {
+        status: 'Withdrawn' as ApplicationStatus,
+        date: today,
+        note: reason ? `Withdrawn by candidate: ${reason}` : 'Withdrawn by candidate',
+      },
+    ];
+
+    setApplications((prev) =>
+      prev.map((app) =>
+        app.id === applicationId
+          ? {
+              ...app,
+              status: 'Withdrawn' as ApplicationStatus,
+              timeline: updatedTimeline,
+            }
+          : app
+      )
+    );
+
+    // Notify Employer
+    const job = jobs.find((j) => j.id === targetApp.jobId);
+    if (job) {
+      const employerNotif: NotificationItem = {
+        id: 'notif-' + Date.now(),
+        userId: job.employerId,
+        targetRole: 'employer',
+        title: 'Application Withdrawn',
+        message: `${targetApp.candidateName} withdrew their application for "${targetApp.jobTitle}".`,
+        type: 'application',
+        timestamp: 'Just now',
+        read: false,
+        link: '/employer/applications',
+      };
+      setNotifications((prev) => [employerNotif, ...prev]);
+    }
+
+    showToast('info', 'Application Withdrawn', `Your application for "${targetApp.jobTitle}" has been safely withdrawn.`);
+    trackEvent('application_withdrawn', { applicationId, jobId: targetApp.jobId });
     return true;
   };
 
@@ -844,7 +940,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         type: 'application',
         timestamp: 'Just now',
         read: false,
-        link: '/job-seeker/applications',
+        link: '/applications',
       };
       setNotifications((prev) => [notif, ...prev]);
     }
@@ -892,7 +988,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         userId: cand.id,
         targetRole: 'candidate',
         title: 'Special Invitation to Apply!',
-        message: `${job.companyName} reviewed your HUNAR profile and invited you to apply for "${job.title}".`,
+        message: `${job.companyName} reviewed your ABHI JOBS profile and invited you to apply for "${job.title}".`,
         type: 'job',
         timestamp: 'Just now',
         read: false,
@@ -937,7 +1033,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         id: 'notif-' + Date.now(),
         userId: cand.id,
         targetRole: 'candidate',
-        title: 'Boost Your HUNAR Profile Completion',
+        title: 'Boost Your ABHI JOBS Profile Completion',
         message: `Your profile is ${cand.completionPercentage}% complete. Complete your remaining steps to unlock 3x more recruiter views!`,
         type: 'system',
         timestamp: 'Just now',
@@ -970,7 +1066,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const exportCsvReport = (type: 'candidates' | 'employers' | 'jobs' | 'applications') => {
     let headers: string[] = [];
     let rows: string[][] = [];
-    let filename = `hunar_${type}_report_${new Date().toISOString().substring(0, 10)}.csv`;
+    let filename = `abhijobs_${type}_report_${new Date().toISOString().substring(0, 10)}.csv`;
 
     if (type === 'candidates') {
       headers = ['ID', 'Name', 'Email', 'Location', 'ExperienceLevel', 'YearsExp', 'Skills', 'CompletionRate', 'Availability'];
@@ -1081,6 +1177,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveJob,
         unsaveJob,
         applyToJob,
+        withdrawApplication,
         createJob,
         updateJob,
         deleteJob,

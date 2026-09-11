@@ -47,7 +47,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
   const [dob, setDob] = useState(currentCandidate?.dob || '');
   const [avatar, setAvatar] = useState(
     currentCandidate?.avatar ||
-      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentCandidate?.name || 'HunarUser')}`
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentCandidate?.name || 'AbhiJobsUser')}`
   );
 
   // Step 2: Education
@@ -207,8 +207,8 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold text-emerald-800 uppercase tracking-widest">
-                HUNAR Onboarding
+              <span className="text-xs font-bold text-[#004D40] uppercase tracking-widest">
+                ABHI JOBS Onboarding
               </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">
                 Build Your Professional Profile
@@ -221,7 +221,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                 Profile Completion
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-[#062e22]">
+              <div className="text-2xl sm:text-3xl font-black text-[#061226]">
                 {progressPercent}%
               </div>
             </div>
@@ -230,7 +230,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
           {/* Progress Bar */}
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#062e22] transition-all duration-500 rounded-full"
+              className="h-full bg-[#061226] transition-all duration-500 rounded-full"
               style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
@@ -248,7 +248,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   onClick={() => setCurrentStep(s.num)}
                   className={`flex flex-col items-center gap-1 p-1.5 rounded-xl text-center transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200'
+                      ? 'bg-teal-50 text-[#061226] font-bold border border-teal-200'
                       : isPast
                       ? 'text-slate-700 hover:bg-slate-50'
                       : 'text-slate-400 opacity-60'
@@ -257,9 +257,9 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${
                       isActive
-                        ? 'bg-[#062e22] text-white'
+                        ? 'bg-[#061226] text-white'
                         : isPast
-                        ? 'bg-emerald-100 text-emerald-900'
+                        ? 'bg-teal-100 text-[#004D40]'
                         : 'bg-slate-100 text-slate-400'
                     }`}
                   >
@@ -286,7 +286,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                 <img
                   src={avatar}
                   alt="Profile"
-                  className="w-20 h-20 rounded-full border-2 border-emerald-700 object-cover shadow-sm"
+                  className="w-20 h-20 rounded-full border-2 border-[#004D40] object-cover shadow-sm"
                 />
                 <div className="space-y-1 text-center sm:text-left flex-1">
                   <div className="text-sm font-bold text-slate-900">{currentCandidate?.name || 'Job Seeker'}</div>
@@ -317,7 +317,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
                   placeholder="e.g. Senior Full Stack Engineer | React, Node.js & Cloud"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#061226]"
                 />
                 <p className="text-[11px] text-slate-400">
                   This headline appears directly under your name when recruiters review candidate cards.
@@ -334,7 +334,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   value={about}
                   onChange={(e) => setAbout(e.target.value)}
                   placeholder="Briefly describe your career focus, core skills, and accomplishments..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#061226]"
                 />
               </div>
 
@@ -349,7 +349,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="City, State"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#061226]"
                   />
                 </div>
 
@@ -361,7 +361,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                     type="date"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#061226]"
                   />
                 </div>
 
@@ -372,7 +372,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   <select
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#062e22] cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#061226] cursor-pointer"
                   >
                     <option value="">Prefer not to say</option>
                     <option value="Male">Male</option>
@@ -506,7 +506,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                       },
                     ])
                   }
-                  className="px-4 py-2 rounded-xl border border-dashed border-slate-300 hover:border-emerald-600 text-xs font-bold text-slate-700 hover:text-emerald-900 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 hover:text-[#FF2B1A] transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Another Degree</span>
@@ -536,20 +536,20 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
 
               {/* Fresher specific banner */}
               {isFresher ? (
-                <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-4">
+                <div className="p-6 rounded-2xl bg-teal-50 border border-teal-200 space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#062e22] text-white flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#061226] text-white flex items-center justify-center flex-shrink-0">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-emerald-950">You selected Fresher</h3>
-                      <p className="text-xs text-emerald-800 leading-relaxed mt-1">
-                        No prior full-time corporate work experience is required. HUNAR matches freshers based on your education, academic projects, certifications, and technical skills.
+                      <h3 className="text-sm font-bold text-[#061226]">You selected Fresher</h3>
+                      <p className="text-xs text-[#004D40] leading-relaxed mt-1">
+                        No prior full-time corporate work experience is required. ABHI JOBS matches freshers based on your education, academic projects, certifications, and technical skills.
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-white border border-emerald-200 text-xs text-slate-600">
+                  <div className="p-3 rounded-xl bg-white border border-teal-200 text-xs text-slate-600">
                     <div className="font-semibold text-slate-800">Optional: Added internships or project work?</div>
                     <p className="text-slate-500 mt-0.5">
                       You may optionally add internships or college capstone projects below, or skip straight to Skills!
@@ -659,7 +659,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               <button
                 type="button"
                 onClick={handleAddExperience}
-                className="px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-emerald-600 text-xs font-bold text-slate-700 hover:text-emerald-900 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 hover:text-[#FF2B1A] transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{isFresher ? 'Add Internship / Project (Optional)' : 'Add Another Experience'}</span>
@@ -673,7 +673,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               <div className="border-b border-slate-100 pb-4">
                 <h2 className="text-lg font-bold text-slate-900">Step 4 — Skills &amp; Competencies</h2>
                 <p className="text-xs text-slate-500">
-                  Skills are the core of HUNAR's matching algorithm. Add technical, professional, and industry skills.
+                  Skills are the core of ABHI JOBS's matching algorithm. Add technical, professional, and industry skills.
                 </p>
               </div>
 
@@ -690,12 +690,12 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                     }
                   }}
                   placeholder="Type a skill (e.g. React, Python, UI Design, SQL, Docker) and hit Enter"
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#062e22]"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#061226]"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddSkill(newSkillInput)}
-                  className="px-5 py-2.5 rounded-xl bg-[#062e22] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#061226] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer"
                 >
                   Add
                 </button>
@@ -771,7 +771,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                       type="button"
                       onClick={() => handleAddSkill(s)}
                       disabled={skillsList.some((x) => x.name.toLowerCase() === s.toLowerCase())}
-                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:border-emerald-600 hover:text-emerald-950 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:border-slate-400 hover:text-[#061226] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       + {s}
                     </button>
@@ -786,7 +786,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
             <div className="space-y-6 animate-in fade-in-50 duration-200">
               <div className="border-b border-slate-100 pb-4">
                 <h2 className="text-lg font-bold text-slate-900">Step 5 — Career Preferences</h2>
-                <p className="text-xs text-slate-500">Specify what kind of opportunities you want HUNAR to prioritize</p>
+                <p className="text-xs text-slate-500">Specify what kind of opportunities you want ABHI JOBS to prioritize</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -877,7 +877,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                     type="checkbox"
                     checked={willingToRelocate}
                     onChange={(e) => setWillingToRelocate(e.target.checked)}
-                    className="h-4 w-4 rounded text-[#062e22] focus:ring-[#062e22]"
+                    className="h-4 w-4 rounded text-[#061226] focus:ring-[#061226]"
                   />
                   <span className="text-xs font-medium text-slate-700">
                     I am open and willing to relocate for the right job opportunity.
@@ -895,16 +895,16 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                 <p className="text-xs text-slate-500">Upload your CV in PDF, DOC, or DOCX format</p>
               </div>
 
-              <div className="border-2 border-dashed border-slate-300 rounded-3xl p-8 text-center hover:border-emerald-600 transition-colors bg-slate-50/50 space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-950 flex items-center justify-center mx-auto">
-                  <Upload className="w-7 h-7 text-[#062e22]" />
+              <div className="border-2 border-dashed border-slate-300 rounded-3xl p-8 text-center hover:border-slate-400 transition-colors bg-slate-50/50 space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-teal-100 text-[#061226] flex items-center justify-center mx-auto">
+                  <Upload className="w-7 h-7 text-[#061226]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">Upload your Resume file</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Supported formats: PDF, DOC, DOCX (Max 10 MB)</p>
                 </div>
                 <div className="pt-2">
-                  <label className="inline-block px-5 py-2.5 rounded-xl bg-[#062e22] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer shadow-sm">
+                  <label className="inline-block px-5 py-2.5 rounded-xl bg-[#061226] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer shadow-sm">
                     <span>Browse Files</span>
                     <input
                       type="file"
@@ -923,9 +923,9 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               </div>
 
               {resumeName && (
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-emerald-300 flex items-center justify-center text-emerald-800">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-teal-300 flex items-center justify-center text-[#004D40]">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div>
@@ -933,7 +933,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                       <div className="text-[11px] text-slate-500">{resumeSize} &bull; Ready to submit</div>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-200/60 text-emerald-900 text-[11px] font-bold">
+                  <span className="px-2.5 py-1 rounded-full bg-teal-200/60 text-[#004D40] text-[11px] font-bold">
                     Attached
                   </span>
                 </div>
@@ -942,18 +942,18 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-slate-800">Don't have a formatted CV handy?</div>
-                  <p className="text-[11px] text-slate-500">Generate an ATS-friendly resume from your HUNAR profile.</p>
+                  <p className="text-[11px] text-slate-500">Generate an ATS-friendly resume from your ABHI JOBS profile.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
-                    setResumeName('HUNAR_Generated_Resume.pdf');
+                    setResumeName('ABHI JOBS_Generated_Resume.pdf');
                     setResumeSize('1.2 MB');
-                    showToast('success', 'Resume Generated', 'HUNAR ATS resume prepared.');
+                    showToast('success', 'Resume Generated', 'ABHI JOBS ATS resume prepared.');
                   }}
                   className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 cursor-pointer"
                 >
-                  Build Resume with HUNAR
+                  Build Resume with ABHI JOBS
                 </button>
               </div>
             </div>
@@ -967,7 +967,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   <h2 className="text-lg font-bold text-slate-900">Step 7 — Profile Review</h2>
                   <p className="text-xs text-slate-500">Review your information before completing your profile</p>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-teal-100 text-[#004D40] text-xs font-bold">
                   95% Complete
                 </span>
               </div>
@@ -978,7 +978,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                   <img src={avatar} alt="Profile" className="w-14 h-14 rounded-full border border-slate-200" />
                   <div className="flex-1 space-y-1">
                     <div className="text-base font-bold text-slate-900">{currentCandidate?.name}</div>
-                    <div className="text-xs text-emerald-900 font-semibold">{headline}</div>
+                    <div className="text-xs text-[#004D40] font-semibold">{headline}</div>
                     <div className="text-xs text-slate-500">{location} &bull; {currentCandidate?.email}</div>
                   </div>
                 </div>
@@ -998,7 +998,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                     <div className="text-xs font-bold text-slate-700 uppercase">Experience Status</div>
                     <div className="text-xs text-slate-800">
                       {isFresher ? (
-                        <span className="font-semibold text-emerald-800">Registered as Fresher (Entry-Level)</span>
+                        <span className="font-semibold text-[#004D40]">Registered as Fresher (Entry-Level)</span>
                       ) : (
                         <span>
                           {experiences.length > 0 ? `${experiences[0].jobTitle} at ${experiences[0].company}` : 'Experienced Candidate'}
@@ -1038,9 +1038,9 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
                 <button
                   type="button"
                   onClick={handleFinalSubmit}
-                  className="w-full py-4 px-6 rounded-2xl bg-[#062e22] hover:bg-[#0b3b2c] text-white font-extrabold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 px-6 rounded-2xl bg-[#FF2B1A] hover:bg-[#e02213] text-white font-extrabold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-5 h-5 text-emerald-300" />
+                  <Sparkles className="w-5 h-5 text-teal-200" />
                   <span>Complete Profile &amp; Discover Opportunities</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
@@ -1067,7 +1067,7 @@ export const JobSeekerOnboardingPage: React.FC<JobSeekerOnboardingPageProps> = (
               <button
                 type="button"
                 onClick={() => setCurrentStep((prev) => prev + 1)}
-                className="px-5 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                className="px-5 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
               >
                 <span>Save &amp; Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />

@@ -79,7 +79,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
       showToast('error', 'Validation Error', 'Please complete the title and overview.');
       return;
     }
-    const finalCompanyName = companyName.trim() || currentEmployer?.companyName || currentEmployer?.name || 'Hunar Partner Company';
+    const finalCompanyName = companyName.trim() || currentEmployer?.companyName || currentEmployer?.name || 'ABHI JOBS Partner Company';
     if (!agreedToTerms) {
       showToast('error', 'Terms Required', 'Please accept the Terms & Conditions and Privacy Policy.');
       return;
@@ -132,7 +132,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
           <div className="border-b border-slate-100 pb-5">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Post a Job Opening</h1>
             <p className="text-xs text-slate-500 mt-1">
-              Publish a verified opening to attract skill-accredited talent on the HUNAR platform.
+              Publish a verified opening to attract skill-accredited talent on the ABHI JOBS platform.
             </p>
           </div>
 
@@ -146,7 +146,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Lead Frontend Architect, DevOps Engineer..."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                   required
                 />
               </div>
@@ -158,7 +158,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="e.g. Your Organization Name"
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                   required
                 />
               </div>
@@ -171,7 +171,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                   type="text"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                 />
               </div>
 
@@ -181,7 +181,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                 />
               </div>
 
@@ -190,7 +190,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                 <select
                   value={workMode}
                   onChange={(e) => setWorkMode(e.target.value as any)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden bg-white cursor-pointer"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden bg-white cursor-pointer"
                 >
                   <option value="Remote">Remote</option>
                   <option value="Hybrid">Hybrid</option>
@@ -203,7 +203,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                 <select
                   value={employmentType}
                   onChange={(e) => setEmploymentType(e.target.value as any)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden bg-white cursor-pointer"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden bg-white cursor-pointer"
                 >
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
@@ -253,7 +253,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                 onChange={(e) => setOverview(e.target.value)}
                 rows={3}
                 placeholder="Describe the mission, impact, and core charter of this position..."
-                className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-emerald-600 focus:outline-hidden"
+                className="w-full text-xs p-3 rounded-xl border border-slate-200 mt-1 focus:border-[#061226] focus:outline-hidden"
                 required
               />
             </div>
@@ -289,7 +289,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
               {skills.map((s) => (
                 <span
                   key={s}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-lg bg-teal-50 text-[#004D40] border border-teal-200 text-xs font-semibold flex items-center gap-1.5"
                 >
                   <span>{s}</span>
                   <button
@@ -313,14 +313,14 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
                 required
-                className="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-800 focus:ring-emerald-700 cursor-pointer accent-emerald-800 shrink-0"
+                className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#004D40] focus:ring-[#004D40] cursor-pointer accent-[#004D40] shrink-0"
               />
               <span className="leading-snug">
-                I agree to HUNAR&apos;s{' '}
+                I agree to ABHI JOBS&apos;s{' '}
                 <button
                   type="button"
                   onClick={() => navigate('/terms-and-conditions')}
-                  className="text-emerald-800 font-semibold underline hover:text-emerald-950 cursor-pointer inline"
+                  className="text-[#004D40] font-semibold underline hover:text-[#061226] cursor-pointer inline"
                 >
                   Terms &amp; Conditions
                 </button>{' '}
@@ -328,7 +328,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
                 <button
                   type="button"
                   onClick={() => navigate('/privacy')}
-                  className="text-emerald-800 font-semibold underline hover:text-emerald-950 cursor-pointer inline"
+                  className="text-[#004D40] font-semibold underline hover:text-[#061226] cursor-pointer inline"
                 >
                   Privacy Policy
                 </button>
@@ -348,7 +348,7 @@ export const PostJobPage: React.FC<PostJobPageProps> = ({ navigate }) => {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer"
+              className="px-6 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Publish Verified Opening</span>

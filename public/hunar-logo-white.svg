@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 160" fill="none">
-  <!-- HUNAR Logo - White on Transparent Background -->
+  <!-- ABHI JOBS Logo - White on Transparent Background -->
   <g transform="translate(10, 5)">
     <!-- Star -->
     <path d="M100 8L102.8 17.2L112 20L102.8 22.8L100 32L97.2 22.8L88 20L97.2 17.2L100 8Z" fill="#FCD34D" />
@@ -66,6 +66,6 @@
   </g>
 
   <!-- Typography in Crisp Pure White -->
-  <text x="215" y="98" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="88" font-weight="900" fill="#FFFFFF" letter-spacing="4">HUNAR</text>
-  <text x="218" y="136" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#A7F3D0" letter-spacing="5">WHERE SKILLS MEET OPPORTUNITY</text>
+  <text x="215" y="98" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="88" font-weight="900" fill="#FFFFFF" letter-spacing="4">ABHI JOBS</text>
+  <text x="218" y="136" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#A7F3D0" letter-spacing="5">DISCOVER. APPLY. GROW.</text>
 </svg>

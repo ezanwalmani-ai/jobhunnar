@@ -21,17 +21,17 @@ interface PasswordCheckerDemoPageProps {
 
 const PRESET_TEST_PASSWORDS = [
   { label: 'Too Short (< 8)', value: 'P@ss1', description: 'Missing length' },
-  { label: 'Missing Uppercase', value: 'hunar#secure123', description: 'No capital letters' },
-  { label: 'Missing Lowercase', value: 'HUNAR#SECURE123', description: 'No small letters' },
-  { label: 'Missing Number', value: 'HunarSecure@Pass', description: 'No digits' },
-  { label: 'Missing Special Char', value: 'HunarSecure1234', description: 'No symbols' },
+  { label: 'Missing Uppercase', value: 'abhijobs#secure123', description: 'No capital letters' },
+  { label: 'Missing Lowercase', value: 'ABHIJOBS#SECURE123', description: 'No small letters' },
+  { label: 'Missing Number', value: 'AbhiJobsSecure@Pass', description: 'No digits' },
+  { label: 'Missing Special Char', value: 'AbhiJobsSecure1234', description: 'No symbols' },
   { label: 'Common / Repetitive', value: 'aaaa1111AA!!', description: 'Repetitive pattern' },
-  { label: 'Standard Strong', value: 'Hunar#Pro2026', description: 'All 5 criteria satisfied' },
-  { label: 'Very Strong (16+)', value: 'Hunar#Enterprise99@Scale', description: 'Enterprise-grade entropy' },
+  { label: 'Standard Strong', value: 'AbhiJobs#Pro2026', description: 'All 5 criteria satisfied' },
+  { label: 'Very Strong (16+)', value: 'AbhiJobs#Enterprise99@Scale', description: 'Enterprise-grade entropy' },
 ];
 
 export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = ({ navigate }) => {
-  const [password, setPassword] = useState('Hunar#Pro2026');
+  const [password, setPassword] = useState('AbhiJobs#Pro2026');
   const [showPassword, setShowPassword] = useState(true);
   const [variant, setVariant] = useState<'detailed' | 'compact' | 'minimal'>('detailed');
   const [minLength, setMinLength] = useState(8);
@@ -68,12 +68,12 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       {/* Header */}
-      <header className="bg-[#062e22] text-white border-b border-emerald-900/50 pt-10 pb-12 sm:pt-12 sm:pb-14 relative overflow-hidden">
+      <header className="bg-[#061226] text-white border-b border-slate-800 pt-10 pb-12 sm:pt-12 sm:pb-14 relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between gap-4 mb-6">
             <button
               onClick={() => navigate('/register/job-seeker')}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-200 hover:text-white bg-emerald-950/60 hover:bg-emerald-900/80 px-3.5 py-2 rounded-xl border border-emerald-800/60 transition-all cursor-pointer group"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-3.5 py-2 rounded-xl border border-white/20 transition-all cursor-pointer group"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
               <span>Back to Job Seeker Registration</span>
@@ -81,21 +81,21 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
 
             <button
               onClick={() => navigate('/')}
-              className="text-xs font-semibold text-emerald-300 hover:text-white transition-colors"
+              className="text-xs font-semibold text-teal-200 hover:text-white transition-colors"
             >
               Home
             </button>
           </div>
 
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/70 border border-emerald-700/60 text-emerald-300 text-xs font-semibold mb-3">
-              <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold mb-3">
+              <KeyRound className="w-3.5 h-3.5 text-[#FF2B1A]" />
               <span>Real-Time Security Component</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
               Password Strength Visual Indicator
             </h1>
-            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed font-normal">
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
               Tests password complexity in real-time across uppercase, lowercase, number, special character, and length requirements as you type.
             </p>
           </div>
@@ -111,7 +111,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800">
+                  <div className="p-1.5 rounded-lg bg-teal-50 text-[#004D40]">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
@@ -125,7 +125,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                     type="button"
                     onClick={generateRandomStrong}
                     title="Generate secure random password"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-[#004D40] text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Generate</span>
@@ -137,7 +137,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                       title="Copy password"
                       className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
                     >
-                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? <Check className="w-3.5 h-3.5 text-[#004D40]" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                   )}
                 </div>
@@ -152,7 +152,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 transition-colors cursor-pointer"
+                    className="text-xs font-semibold text-[#004D40] hover:text-[#061226] transition-colors cursor-pointer"
                   >
                     {showPassword ? 'Hide plain text' : 'Show plain text'}
                   </button>
@@ -162,7 +162,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Type a password here to test..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#062e22] transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061226] transition-all"
                 />
               </div>
 
@@ -191,7 +191,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
               <div
                 className={`p-3.5 rounded-xl border text-xs flex items-center justify-between ${
                   evaluation.isValid
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    ? 'bg-teal-50 border-teal-200 text-[#004D40]'
                     : 'bg-amber-50 border-amber-200 text-amber-900'
                 }`}
               >
@@ -205,7 +205,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                 </div>
                 <button
                   onClick={() => navigate('/register/job-seeker')}
-                  className="inline-flex items-center gap-1 font-bold text-emerald-800 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 font-bold text-[#004D40] hover:underline cursor-pointer"
                 >
                   <span>Go to Registration</span>
                   <ExternalLink className="w-3 h-3" />
@@ -220,7 +220,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
             {/* Component Controls */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Sliders className="w-4 h-4 text-emerald-800" />
+                <Sliders className="w-4 h-4 text-[#004D40]" />
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                   Component Props Configuration
                 </h3>
@@ -237,7 +237,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                       onClick={() => setVariant(v)}
                       className={`px-3 py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
                         variant === v
-                          ? 'bg-[#062e22] text-white shadow-xs'
+                          ? 'bg-[#061226] text-white shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                       }`}
                     >
@@ -251,7 +251,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-slate-700">Minimum Length:</span>
-                  <span className="font-bold text-emerald-800">{minLength} characters</span>
+                  <span className="font-bold text-[#004D40]">{minLength} characters</span>
                 </div>
                 <input
                   type="range"
@@ -259,7 +259,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                   max="16"
                   value={minLength}
                   onChange={(e) => setMinLength(Number(e.target.value))}
-                  className="w-full accent-[#062e22] cursor-pointer"
+                  className="w-full accent-[#004D40] cursor-pointer"
                 />
               </div>
 
@@ -271,7 +271,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                     type="checkbox"
                     checked={showChecklist}
                     onChange={(e) => setShowChecklist(e.target.checked)}
-                    className="rounded text-emerald-800 focus:ring-emerald-700 h-4 w-4"
+                    className="rounded text-[#004D40] focus:ring-[#004D40] h-4 w-4"
                   />
                 </label>
                 <label className="flex items-center justify-between text-xs font-medium text-slate-700 cursor-pointer">
@@ -280,7 +280,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                     type="checkbox"
                     checked={showTips}
                     onChange={(e) => setShowTips(e.target.checked)}
-                    className="rounded text-emerald-800 focus:ring-emerald-700 h-4 w-4"
+                    className="rounded text-[#004D40] focus:ring-[#004D40] h-4 w-4"
                   />
                 </label>
               </div>
@@ -303,7 +303,7 @@ export const PasswordCheckerDemoPage: React.FC<PasswordCheckerDemoPageProps> = (
                     onClick={() => setPassword(preset.value)}
                     className={`w-full text-left p-2.5 rounded-xl border text-xs transition-all cursor-pointer flex items-center justify-between ${
                       password === preset.value
-                        ? 'bg-emerald-50 border-emerald-300 text-emerald-950 font-semibold'
+                        ? 'bg-teal-50 border-teal-300 text-[#061226] font-semibold'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >

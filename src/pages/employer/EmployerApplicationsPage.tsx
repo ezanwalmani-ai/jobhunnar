@@ -130,11 +130,11 @@ export const EmployerApplicationsPage: React.FC<EmployerApplicationsPageProps> =
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => matchedCandidate && setSelectedCandidateForProfile(matchedCandidate)}
-                        className="text-left font-bold text-slate-900 text-base hover:text-emerald-700 transition-colors cursor-pointer"
+                        className="text-left font-bold text-slate-900 text-base hover:text-[#FF2B1A] transition-colors cursor-pointer"
                       >
                         {app.candidateName}
                       </button>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-teal-50 text-[#004D40] border border-teal-200">
                         {app.matchScore}% Verified Match
                       </span>
                     </div>
@@ -175,7 +175,7 @@ export const EmployerApplicationsPage: React.FC<EmployerApplicationsPageProps> =
 
                     <button
                       onClick={() => setSelectedAppForSchedule(app)}
-                      className="px-3 py-1.5 rounded-lg bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-lg bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1"
                     >
                       <Calendar className="w-3.5 h-3.5" />
                       <span>Interview</span>

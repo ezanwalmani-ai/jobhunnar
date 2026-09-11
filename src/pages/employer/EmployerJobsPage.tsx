@@ -38,7 +38,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
 
           <button
             onClick={() => navigate('/employer/post-job')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Post a New Job</span>
@@ -54,7 +54,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
                 onClick={() => setFilterStatus(st)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-colors cursor-pointer ${
                   filterStatus === st
-                    ? 'bg-[#062e22] text-white'
+                    ? 'bg-[#061226] text-white'
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -76,7 +76,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
               <p className="text-xs text-slate-500">Post a new position or adjust the status filter above.</p>
               <button
                 onClick={() => navigate('/employer/post-job')}
-                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#062e22] text-white text-xs font-bold hover:bg-[#0b3b2c] transition-colors cursor-pointer"
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#061226] text-white text-xs font-bold hover:bg-[#e02213] transition-colors cursor-pointer"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>Create Your First Job Posting</span>
@@ -97,7 +97,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold capitalize border ${
                           job.status === 'published'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            ? 'bg-teal-50 text-[#004D40] border-teal-200'
                             : job.status === 'paused'
                             ? 'bg-amber-50 text-amber-700 border-amber-200'
                             : 'bg-slate-100 text-slate-600 border-slate-200'
@@ -130,7 +130,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
                   <div className="flex items-center gap-4 self-end md:self-center shrink-0">
                     <div className="text-right">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 justify-end">
-                        <Users className="w-3.5 h-3.5 text-emerald-600" />
+                        <Users className="w-3.5 h-3.5 text-[#004D40]" />
                         <span>{applicantsForJob.length} Applicants</span>
                       </div>
                       <span className="text-[11px] text-slate-500">
@@ -149,7 +149,7 @@ export const EmployerJobsPage: React.FC<EmployerJobsPageProps> = ({ navigate }) 
 
                       <button
                         onClick={() => navigate('/employer/dashboard')}
-                        className="px-3.5 py-2 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-semibold transition-colors cursor-pointer"
+                        className="px-3.5 py-2 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-semibold transition-colors cursor-pointer"
                       >
                         Review Applicants
                       </button>

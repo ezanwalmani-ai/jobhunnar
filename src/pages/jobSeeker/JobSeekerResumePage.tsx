@@ -27,8 +27,8 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-100 text-[#004D40] text-xs font-semibold mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#004D40]" />
               <span>Job Seeker Journey</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -41,10 +41,10 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
 
           <button
             onClick={() => navigate('/job-seeker/profile')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:border-emerald-600 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
           >
             <span>Edit My Profile</span>
-            <ArrowRight className="w-4 h-4 text-emerald-600" />
+            <ArrowRight className="w-4 h-4 text-[#004D40]" />
           </button>
         </div>
 
@@ -52,7 +52,7 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#004D40] flex items-center justify-center">
                 <FileText className="w-6 h-6" />
               </div>
               <div>
@@ -60,7 +60,7 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
                   <h3 className="font-bold text-slate-900 text-base">
                     {currentCandidate?.resumeFileName || 'Aarav_Sharma_FullStack_2026.pdf'}
                   </h3>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-50 text-[#004D40] text-[10px] font-bold border border-teal-200">
                     <ShieldCheck className="w-3 h-3" /> Active
                   </span>
                 </div>
@@ -83,7 +83,7 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
               <a
                 href={currentCandidate?.resumeUrl || '#'}
                 download
-                className="px-3.5 py-2 rounded-lg bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 rounded-lg bg-[#FF2B1A] hover:bg-[#e02213] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download</span>
@@ -92,7 +92,7 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
           </div>
 
           {/* Upload New Resume */}
-          <div className="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl p-6 text-center bg-slate-50/50 hover:bg-emerald-50/20 transition-all">
+          <div className="border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-xl p-6 text-center bg-slate-50/50 hover:bg-teal-50/20 transition-all">
             <input
               type="file"
               id="resume-file-input"
@@ -104,7 +104,7 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
               htmlFor="resume-file-input"
               className="cursor-pointer flex flex-col items-center justify-center space-y-2"
             >
-              <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-teal-100 text-[#004D40] flex items-center justify-center">
                 <Upload className="w-5 h-5" />
               </div>
               <span className="text-xs sm:text-sm font-semibold text-slate-800">
@@ -121,20 +121,20 @@ export const JobSeekerResumePage: React.FC<JobSeekerResumePageProps> = ({ naviga
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
             <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-4 h-4 text-[#004D40]" />
               Resume Health &amp; Format
             </h4>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Your resume matches HUNAR verified formatting standards. Employers can parse your work history and verified skill badges automatically.
+              Your resume matches ABHI JOBS verified formatting standards. Employers can parse your work history and verified skill badges automatically.
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
             <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <ShieldCheck className="w-4 h-4 text-[#004D40]" />
               Direct Employer Visibility
             </h4>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-              Whenever you apply with 1-click on HUNAR, this verified resume is delivered directly to the recruiter with your skill verification score.
+              Whenever you apply with 1-click on ABHI JOBS, this verified resume is delivered directly to the recruiter with your skill verification score.
             </p>
           </div>
         </div>

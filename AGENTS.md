@@ -1,6 +1,6 @@
-# HUNAR — PERMANENT RESPONSIVE DESIGN & DEVELOPMENT RULES
+# ABHI JOBS — PERMANENT RESPONSIVE DESIGN & DEVELOPMENT RULES
 
-This is a **GLOBAL DEVELOPMENT RULE** for the entire HUNAR platform.
+This is a **GLOBAL DEVELOPMENT RULE** for the entire ABHI JOBS platform.
 
 Every change, feature, component, page, section, button, navigation item, form, dashboard, card, icon, animation, popup, modal, table, filter, or layout modification **MUST be fully responsive across ALL supported device sizes**:
 
@@ -12,7 +12,7 @@ Every change, feature, component, page, section, button, navigation item, form, 
 ## 2. Responsive-First Rules
 - **No Overlapping Elements**: Never allow text, icons, badges, dropdowns, buttons, or navigation items to collide or sit on top of each other.
 - **Badge Positioning**: Notification and counter badges must be positioned relative to their parent icon container (using inner wrappers), with appropriate offsets (e.g. `-top-1.5 -right-1.5`) and white ring borders, so they never cover icon bodies or cause layout shifts.
-- **Brand Logo Responsiveness**: On extra-compact mobile screens (`< 640px`), show the emblem and the bold HUNAR wordmark; display full taglines ("Where Skills Meet Opportunity") responsively on tablet/desktop viewports (`sm:` and above) to preserve header breathing room.
+- **Brand Logo Responsiveness**: On extra-compact mobile screens (`< 640px`), show the emblem and the bold ABHI JOBS wordmark; display full taglines ("Discover. Apply. Grow.") responsively on tablet/desktop viewports (`sm:` and above) to preserve header breathing room.
 - **Header Structure**: The header must maintain strict non-colliding order (`Logo` | `Nav / Links` | `Notifications` | `Profile` | `Menu`), with `shrink-0` on critical interactive controls and flexible containers with `min-w-0` to avoid horizontal overflow.
 - **Fluid Sizing over Fixed Widths**: Avoid rigid pixel widths like `width: 500px`. Use `w-full max-w-[...]` and responsive constraints instead.
 - **Forms & Inputs**: Full-width single column on mobile, comfortable touch targets (minimum 44px), with legible labels and contained select menus.

@@ -1,6 +1,6 @@
 {
-  "name": "HUNAR - Where Skills Meet Opportunity",
-  "description": "Professional job consultancy and talent marketplace platform connecting candidates, employers, and recruiters.",
+  "name": "ABHI JOBS - Discover. Apply. Grow.",
+  "description": "Professional job consultancy and career ecosystem connecting skilled candidates with top employers. Discover. Apply. Grow.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

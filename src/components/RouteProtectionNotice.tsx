@@ -37,7 +37,7 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
             {requiredRoleLabel} Access Required
           </h1>
           <p className="text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
-            This section of HUNAR is reserved specifically for{' '}
+            This section of ABHI JOBS is reserved specifically for{' '}
             <strong className="text-slate-900">{requiredRoleLabel}s</strong>. You are currently browsing as a{' '}
             <strong className="text-slate-900">{currentRoleLabel}</strong>.
           </p>
@@ -46,14 +46,14 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 text-left space-y-1.5">
           <div className="font-semibold text-slate-800">Security &amp; Role Isolation:</div>
           <p>
-            HUNAR isolates candidate profiles, applications, and recruiter workspaces to ensure strict privacy and role separation. You cannot access {requiredRoleLabel} pages while logged in as a {currentRoleLabel}.
+            ABHI JOBS isolates candidate profiles, applications, and recruiter workspaces to ensure strict privacy and role separation. You cannot access {requiredRoleLabel} pages while logged in as a {currentRoleLabel}.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
             onClick={onRedirectToAllowed}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] text-white text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#061226] hover:bg-[#0d1e3d] text-white text-xs sm:text-sm font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Go to My {currentRole === 'employer' ? 'Employer Portal' : 'Job Seeker Portal'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -62,9 +62,9 @@ export const RouteProtectionNotice: React.FC<RouteProtectionNoticeProps> = ({
           {onSignOut && (
             <button
               onClick={onSignOut}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white border border-[#E4E7EC] hover:border-slate-300 text-[#101828] text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <LogIn className="w-3.5 h-3.5 text-slate-500" />
+              <LogIn className="w-3.5 h-3.5 text-[#667085]" />
               <span>Sign In with Another Account</span>
             </button>
           )}

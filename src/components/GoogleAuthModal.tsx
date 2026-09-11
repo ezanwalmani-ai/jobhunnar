@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, ShieldCheck, ArrowRight } from 'lucide-react';
+import { EASE_PREMIUM } from '../lib/motion';
 
 interface GoogleAuthModalProps {
   isOpen: boolean;
@@ -15,8 +17,6 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +35,24 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.28, ease: EASE_PREMIUM }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800"
+          >
         {/* Google Header */}
         <div className="p-6 border-b border-slate-100 flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -60,7 +76,7 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
             </svg>
             <div>
               <h3 className="text-base font-bold text-slate-900">Sign in with Google</h3>
-              <p className="text-xs text-slate-500">to continue to HUNAR Career Platform</p>
+              <p className="text-xs text-slate-500">to continue to ABHI JOBS Career Platform</p>
             </div>
           </div>
           <button
@@ -77,25 +93,25 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+              <label className="block text-xs font-semibold text-[#101828] mb-1">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. John Doe"
                 required
-                className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:border-emerald-600"
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-[#D0D5DD] rounded-xl focus:outline-hidden focus:border-[#061226]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Google Email Address</label>
+              <label className="block text-xs font-semibold text-[#101828] mb-1">Google Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@gmail.com"
                 required
-                className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:border-emerald-600"
+                className="w-full px-3 py-2 text-xs sm:text-sm bg-white border border-[#D0D5DD] rounded-xl focus:outline-hidden focus:border-[#061226]"
               />
             </div>
           </div>
@@ -103,24 +119,26 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || !name || !email}
-            className="w-full py-2.5 rounded-xl bg-[#062e22] hover:bg-[#0b3b2c] disabled:opacity-50 text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+            className="w-full py-2.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] disabled:opacity-50 text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer shadow-xs"
           >
             {isSubmitting ? 'Authenticating...' : 'Continue with Google'}
           </button>
 
-          <div className="pt-2 text-[11px] text-slate-400 text-center leading-relaxed">
-            To continue, Google will share your name and email address with HUNAR. See HUNAR's{' '}
-            <span className="text-emerald-700 font-medium">Privacy Policy</span>.
+          <div className="pt-2 text-[11px] text-[#667085] text-center leading-relaxed">
+            To continue, Google will share your name and email address with ABHI JOBS. See ABHI JOBS's{' '}
+            <span className="text-[#004D40] font-semibold underline">Privacy Policy</span>.
           </div>
         </form>
 
         {isSubmitting && (
-          <div className="p-4 bg-emerald-50 border-t border-emerald-100 flex items-center justify-center gap-2 text-xs font-semibold text-emerald-900">
-            <div className="w-4 h-4 border-2 border-emerald-800 border-t-transparent rounded-full animate-spin"></div>
+          <div className="p-4 bg-teal-50 border-t border-teal-100 flex items-center justify-center gap-2 text-xs font-semibold text-[#004D40]">
+            <div className="w-4 h-4 border-2 border-[#004D40] border-t-transparent rounded-full animate-spin"></div>
             <span>Connecting your Google Account...</span>
           </div>
         )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
