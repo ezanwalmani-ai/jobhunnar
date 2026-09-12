@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { CandidateCard } from '../components/CandidateCard';
 import { CandidateProfileModal } from '../components/CandidateProfileModal';
 import { CandidateProfile } from '../types';
-import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM } from '../lib/motion';
+import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM, TextMaskReveal, ScrollProgress } from '../lib/motion';
 import {
   Search,
   MapPin,
@@ -85,6 +85,7 @@ export const CandidatesPage: React.FC<CandidatesPageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
+      <ScrollProgress />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header Title */}
         <ScrollReveal direction="up" distance={16}>
@@ -94,7 +95,14 @@ export const CandidatesPage: React.FC<CandidatesPageProps> = ({ navigate }) => {
                 <ShieldCheck className="w-3.5 h-3.5 text-[#004D40]" />
                 <span>ABHI JOBS Skill-Certified Network</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#101828]">Talent &amp; Candidate Directory</h1>
+              <TextMaskReveal
+                as="h1"
+                className="text-2xl sm:text-3xl font-extrabold text-[#101828]"
+                delay={0.1}
+                duration={0.65}
+              >
+                Talent &amp; Candidate Directory
+              </TextMaskReveal>
               <p className="text-xs sm:text-sm text-[#667085] mt-1">
                 Browse {filteredCandidates.length} pre-screened professionals ready for hiring and contract opportunities
               </p>

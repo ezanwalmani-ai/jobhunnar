@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM } from '../lib/motion';
+import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM, TextMaskReveal, ScrollProgress } from '../lib/motion';
 import { useApp } from '../context/AppContext';
 import {
   Sparkles,
@@ -130,6 +130,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
 
   return (
     <div id="abhi-jobs-about-page" className="min-h-screen bg-white text-slate-900 selection:bg-red-200 selection:text-slate-950">
+      <ScrollProgress />
       {/* ========================================================================= */}
       {/* 1. ABOUT HERO SECTION */}
       {/* ========================================================================= */}
@@ -150,13 +151,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({ navigate }) => {
                 <span>About ABHI JOBS &bull; Company &amp; Philosophy</span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
+              {/* Main Headline (Text Mask Reveal) */}
+              <TextMaskReveal
+                as="h1"
+                className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]"
+                delay={0.15}
+                duration={0.7}
+              >
                 Building a Better Connection Between{' '}
                 <span className="text-[#FF2B1A]">
                   Skills and Opportunity.
                 </span>
-              </h1>
+              </TextMaskReveal>
 
               {/* Supporting Copy */}
               <p className="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto">

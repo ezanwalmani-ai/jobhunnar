@@ -8,6 +8,7 @@ import { Job } from '../types';
 import { EASE_PREMIUM } from '../lib/motion';
 import { ScrollReveal } from '../components/motion/ScrollReveal';
 import { HeroTextReveal } from '../components/motion/HeroTextReveal';
+import { ScrollProgress } from '../components/motion/ScrollProgress';
 import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { CountUpNumber } from '../components/motion/CountUpNumber';
 import {
@@ -56,16 +57,21 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
     setOpenFaqIndex((prev) => (prev === index ? null : index));
   };
 
+  const [isSearching, setIsSearching] = useState(false);
+
   // Real published jobs from backend context
   const publishedJobs = (jobs || []).filter((j) => j.status === 'published');
   const previewJobs = publishedJobs.slice(0, 3);
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const queryParam = searchQuery.trim() ? `query=${encodeURIComponent(searchQuery.trim())}` : '';
-    const locParam = searchLocation.trim() ? `location=${encodeURIComponent(searchLocation.trim())}` : '';
-    const params = [queryParam, locParam].filter(Boolean).join('&');
-    navigate(params ? `/jobs?${params}` : '/jobs');
+    setIsSearching(true);
+    setTimeout(() => {
+      const queryParam = searchQuery.trim() ? `query=${encodeURIComponent(searchQuery.trim())}` : '';
+      const locParam = searchLocation.trim() ? `location=${encodeURIComponent(searchLocation.trim())}` : '';
+      const params = [queryParam, locParam].filter(Boolean).join('&');
+      navigate(params ? `/jobs?${params}` : '/jobs');
+    }, 200);
   };
 
   const handleStartJobSeekerJourney = () => {
@@ -129,6 +135,9 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
   return (
     <div className="min-h-screen bg-white text-[#101828] flex flex-col selection:bg-[#FF2B1A] selection:text-white">
+      {/* 29. Subtly pinned scroll progress indicator */}
+      <ScrollProgress />
+
       {/* ========================================================================= */}
       {/* 1. HERO SECTION */}
       {/* ========================================================================= */}
@@ -138,65 +147,71 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-5">
-            {/* 1. Tag / Badge (small fade-up, 150ms delay) */}
+            {/* 1. ABHI JOBS brand / tag (0ms entrance: fade in + slight vertical movement) */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.15, ease: EASE_PREMIUM }}
+              transition={{ duration: 0.4, delay: 0.0, ease: EASE_PREMIUM }}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs font-semibold shadow-xs"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#FF2B1A] shrink-0" />
               <span>Skills-First Career Tech Platform</span>
             </motion.div>
 
-            {/* 2. Main Headline (smooth masked upward reveal, 500-700ms) */}
+            {/* 2. Main Headline (100ms entrance: word-by-word reveal) */}
             <HeroTextReveal
               text="Discover. Apply. Grow."
               highlightWords={['Grow.']}
               highlightClassName="text-[#FF2B1A]"
               className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15] font-sora"
-              delay={0.25}
+              delay={0.1}
               duration={0.65}
             />
 
-            {/* 3. Supporting Text (Fade-up 100ms after headline) */}
+            {/* 3. Supporting Text (300ms entrance: Fade Up) */}
             <motion.p
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.4, ease: EASE_PREMIUM }}
+              transition={{ duration: 0.45, delay: 0.3, ease: EASE_PREMIUM }}
               className="text-sm sm:text-base lg:text-lg text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto font-inter"
             >
               ABHI JOBS connects skilled individuals with meaningful career opportunities while helping people build relevant skills for the future of work.
             </motion.p>
 
-            {/* 4. Primary / secondary CTAs (Fade-up with slight scale 0.96 -> 1) */}
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.5, ease: EASE_PREMIUM }}
-              className="flex flex-wrap items-center justify-center gap-3 pt-2"
-            >
-              <button
+            {/* 4. Primary CTA (450ms) and Secondary CTA (520ms staggered) */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.45, ease: EASE_PREMIUM }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/jobs')}
-                className="px-6 py-3.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-sm font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg active:scale-98 transition-all flex items-center gap-2 cursor-pointer group"
+                className="px-6 py-3.5 rounded-xl bg-[#FF2B1A] hover:bg-[#e02213] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer group"
               >
                 <Briefcase className="w-4 h-4 text-white" />
                 <span>Find Jobs</span>
-              </button>
-              <button
+              </motion.button>
+
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.52, ease: EASE_PREMIUM }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/about')}
-                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-sm font-bold backdrop-blur-sm hover:-translate-y-0.5 active:scale-98 transition-all flex items-center gap-2 cursor-pointer group"
+                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-sm font-bold backdrop-blur-sm transition-all flex items-center gap-2 cursor-pointer group"
               >
                 <span>Explore ABHI JOBS</span>
                 <ArrowRight className="w-4 h-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
+              </motion.button>
+            </div>
           </div>
 
-          {/* 5. Integrated Quick Search Bar (Slight upward float and shadow settle, 300-400ms) */}
+          {/* 5. Search container (600ms entrance: Fade Up + subtle scale) */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.6, ease: EASE_PREMIUM }}
             className="mt-10 sm:mt-12 max-w-3xl mx-auto"
           >
@@ -228,12 +243,22 @@ export const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
 
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
+                disabled={isSearching}
+                whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-5 py-2.5 rounded-xl bg-[#061226] hover:bg-[#0B192C] text-white text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-xs hover:shadow-md group"
+                className="min-w-[124px] px-5 py-2.5 rounded-xl bg-[#061226] hover:bg-[#0B192C] text-white text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 shadow-xs hover:shadow-md group disabled:opacity-80"
               >
-                <span>Search</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                {isSearching ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Search</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 shrink-0" />
+                  </>
+                )}
               </motion.button>
             </form>
           </motion.div>

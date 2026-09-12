@@ -1,5 +1,7 @@
 export * from './ScrollReveal';
 export * from './HeroTextReveal';
+export * from './TextMaskReveal';
+export * from './ScrollProgress';
 export * from './StaggerGroup';
 export * from './CountUpNumber';
 export * from './AnimatedProgress';

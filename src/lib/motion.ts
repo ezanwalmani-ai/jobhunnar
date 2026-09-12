@@ -286,6 +286,10 @@ export const reducedMotionVariants: Variants = {
 // Re-export motion components for centralized access
 export { ScrollReveal } from '../components/motion/ScrollReveal';
 export { HeroTextReveal } from '../components/motion/HeroTextReveal';
+export { TextMaskReveal } from '../components/motion/TextMaskReveal';
+export { ScrollProgress } from '../components/motion/ScrollProgress';
 export { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 export { CountUpNumber } from '../components/motion/CountUpNumber';
+export { AnimatedProgressBar } from '../components/motion/AnimatedProgress';
+export { ImageReveal } from '../components/motion/ImageReveal';
 

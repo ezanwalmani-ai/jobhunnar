@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { ScrollReveal, EASE_PREMIUM } from '../../lib/motion';
+import { ScrollReveal, EASE_PREMIUM, TextMaskReveal, ScrollProgress } from '../../lib/motion';
 import {
   Eye,
   EyeOff,
@@ -230,6 +230,7 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 sm:py-14 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+      <ScrollProgress />
       <div className="max-w-xl w-full mx-auto space-y-8">
         {/* Header Title Section */}
         <ScrollReveal direction="up" distance={16}>
@@ -245,9 +246,14 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-[#061226] text-xs font-semibold">
               <span>Job Seeker Sign Up</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <TextMaskReveal
+              as="h1"
+              className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight"
+              delay={0.1}
+              duration={0.65}
+            >
               Create your ABHI JOBS account
-            </h1>
+            </TextMaskReveal>
             <p className="text-sm sm:text-base text-slate-600 max-w-md mx-auto leading-relaxed">
               Create your account in minutes and discover opportunities matched to your skills and career goals.
             </p>
@@ -673,10 +679,11 @@ export const JobSeekerRegisterPage: React.FC<JobSeekerRegisterPageProps> = ({ na
               Sign In
             </button>
           </div>
-        </ScrollReveal>
-      </div>
+        </div>
+      </ScrollReveal>
+    </div>
 
-      {/* Google Auth Modal */}
+    {/* Google Auth Modal */}
       <GoogleAuthModal
         isOpen={isGoogleModalOpen}
         onClose={() => setIsGoogleModalOpen(false)}

@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { JobCard } from '../components/JobCard';
 import { ApplyModal } from '../components/ApplyModal';
 import { Job } from '../types';
-import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM } from '../lib/motion';
+import { ScrollReveal, StaggerGroup, StaggerItem, EASE_PREMIUM, TextMaskReveal, ScrollProgress } from '../lib/motion';
 import {
   Search,
   MapPin,
@@ -293,6 +293,7 @@ export const JobsPage: React.FC<JobsPageProps> = ({
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
+      <ScrollProgress />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Page Header */}
         <ScrollReveal direction="up" distance={16}>
@@ -302,9 +303,14 @@ export const JobsPage: React.FC<JobsPageProps> = ({
                 <Briefcase className="w-3.5 h-3.5 text-[#004D40]" />
                 <span>Verified Career Marketplace</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#101828] tracking-tight">
+              <TextMaskReveal
+                as="h1"
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#101828] tracking-tight"
+                delay={0.1}
+                duration={0.65}
+              >
                 Find Your Next Opportunity
-              </h1>
+              </TextMaskReveal>
               <p className="text-xs sm:text-sm text-[#667085] leading-relaxed">
                 Discover opportunities based on skills, experience, and career interests. Every opening is published and verified by trusted employers.
               </p>

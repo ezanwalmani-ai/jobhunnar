@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { Job } from '../types';
 import { useApp } from '../context/AppContext';
 import { Button } from './ui/Button';
+import { EASE_PREMIUM } from '../lib/motion';
 import {
   MapPin,
   Briefcase,
@@ -132,7 +134,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, onViewDetails })
           {/* Save Job button with subtle scale interaction */}
           <button
             onClick={() => (isSaved ? unsaveJob(job.id) : saveJob(job.id))}
-            className={`p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 flex items-center gap-1 text-xs font-semibold ${
+            className={`p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0 flex items-center gap-1 text-xs font-semibold ${
               isSaved
                 ? 'bg-red-50 text-[#FF2B1A] border border-red-200'
                 : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent'
@@ -140,17 +142,25 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onApply, onViewDetails })
             title={isSaved ? 'Job Saved — Click to remove' : 'Save Job for later'}
             aria-label={isSaved ? 'Saved Job' : 'Save Job'}
           >
-            {isSaved ? (
-              <>
-                <BookmarkCheck className="w-4 h-4 text-[#FF2B1A]" />
-                <span className="hidden sm:inline text-[11px] font-bold text-[#FF2B1A]">Saved</span>
-              </>
-            ) : (
-              <>
-                <Bookmark className="w-4 h-4" />
-                <span className="hidden sm:inline text-[11px] text-slate-500">Save</span>
-              </>
-            )}
+            <motion.span
+              key={isSaved ? 'saved' : 'unsaved'}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: [0.9, 1.05, 1] }}
+              transition={{ duration: 0.3, ease: EASE_PREMIUM }}
+              className="inline-flex items-center gap-1"
+            >
+              {isSaved ? (
+                <>
+                  <BookmarkCheck className="w-4 h-4 text-[#FF2B1A]" />
+                  <span className="hidden sm:inline text-[11px] font-bold text-[#FF2B1A]">Saved</span>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-4 h-4" />
+                  <span className="hidden sm:inline text-[11px] text-slate-500">Save</span>
+                </>
+              )}
+            </motion.span>
           </button>
         </div>
 

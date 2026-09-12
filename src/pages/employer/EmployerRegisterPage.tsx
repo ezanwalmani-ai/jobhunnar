@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ScrollReveal, EASE_PREMIUM } from '../../lib/motion';
+import { ScrollReveal, EASE_PREMIUM, TextMaskReveal, ScrollProgress } from '../../lib/motion';
 import {
   Building2,
   Briefcase,
@@ -91,6 +91,7 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+      <ScrollProgress />
       <div className="max-w-2xl w-full mx-auto space-y-8">
         
         {/* Header Branding */}
@@ -108,9 +109,14 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
               <Building2 className="w-3.5 h-3.5 text-[#FF2B1A]" />
               <span>Employer &amp; Recruiter Registration</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <TextMaskReveal
+              as="h1"
+              className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
+              delay={0.1}
+              duration={0.65}
+            >
               Register Your Company on ABHI JOBS
-            </h1>
+            </TextMaskReveal>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
               Create an organization account to post verified job openings, review qualified applicants, and access skilled talent.
             </p>
@@ -379,8 +385,9 @@ export const EmployerRegisterPage: React.FC<EmployerRegisterPageProps> = ({ navi
               </button>
             </div>
           </div>
-        </ScrollReveal>
-      </div>
+        </div>
+      </ScrollReveal>
     </div>
-  );
+  </div>
+);
 };

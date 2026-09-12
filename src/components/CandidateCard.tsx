@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CandidateProfile } from '../types';
 import { useApp } from '../context/AppContext';
+import { EASE_PREMIUM } from '../lib/motion';
 import {
   MapPin,
   Briefcase,
@@ -33,20 +35,20 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onViewP
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E4E7EC] hover:border-slate-300 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+    <div className="group bg-white rounded-2xl border border-[#E4E7EC] hover:border-slate-300 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300 md:hover:-translate-y-1 flex flex-col justify-between">
       <div>
         {/* Top profile banner */}
         <div className="flex items-start gap-4">
-          <div className="relative shrink-0">
+          <div className="relative shrink-0 overflow-hidden rounded-2xl">
             {candidate.avatar ? (
               <img
                 src={candidate.avatar}
                 alt={candidate.name}
-                className="w-14 h-14 rounded-2xl object-cover border border-[#E4E7EC] shadow-xs"
+                className="w-14 h-14 rounded-2xl object-cover border border-[#E4E7EC] shadow-xs group-hover:scale-[1.02] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 loading="lazy"
               />
             ) : (
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 text-[#061226] border border-[#E4E7EC] flex items-center justify-center font-bold text-lg">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 text-[#061226] border border-[#E4E7EC] flex items-center justify-center font-bold text-lg group-hover:scale-[1.02] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
                 {candidate.name.charAt(0)}
               </div>
             )}
@@ -136,44 +138,52 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, onViewP
             <span>Invite to Apply</span>
           </button>
 
-          {showInviteMenu && (
-            <div className="absolute right-0 bottom-10 w-64 bg-white rounded-2xl shadow-xl border border-[#E4E7EC] p-3.5 z-30 animate-fadeIn">
-              <div className="text-xs font-bold text-[#101828] mb-2">Select Active Job Opening:</div>
-              {activeJobs.length === 0 ? (
-                <div className="text-xs text-[#667085]">No active job listings found.</div>
-              ) : (
-                <div className="space-y-2.5">
-                  <select
-                    value={inviteJobId}
-                    onChange={(e) => setInviteJobId(e.target.value)}
-                    className="w-full text-xs p-2 rounded-xl border border-[#D0D5DD] bg-white focus:outline-hidden focus:border-[#061226]"
-                  >
-                    <option value="">Select a job...</option>
-                    {activeJobs.map((j) => (
-                      <option key={j.id} value={j.id}>
-                        {j.title} ({j.companyName})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="flex justify-end gap-2 pt-1">
-                    <button
-                      onClick={() => setShowInviteMenu(false)}
-                      className="px-2.5 py-1.5 text-xs text-[#667085] hover:bg-[#F7F8FA] rounded-lg cursor-pointer"
+          <AnimatePresence>
+            {showInviteMenu && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 4 }}
+                transition={{ duration: 0.2, ease: EASE_PREMIUM }}
+                className="absolute right-0 bottom-10 w-64 bg-white rounded-2xl shadow-xl border border-[#E4E7EC] p-3.5 z-30"
+              >
+                <div className="text-xs font-bold text-[#101828] mb-2">Select Active Job Opening:</div>
+                {activeJobs.length === 0 ? (
+                  <div className="text-xs text-[#667085]">No active job listings found.</div>
+                ) : (
+                  <div className="space-y-2.5">
+                    <select
+                      value={inviteJobId}
+                      onChange={(e) => setInviteJobId(e.target.value)}
+                      className="w-full text-xs p-2 rounded-xl border border-[#D0D5DD] bg-white focus:outline-hidden focus:border-[#061226]"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleInvite}
-                      disabled={!inviteJobId}
-                      className="px-3.5 py-1.5 text-xs font-bold bg-[#FF2B1A] hover:bg-[#e02213] text-white rounded-xl disabled:opacity-50 cursor-pointer shadow-xs transition-colors"
-                    >
-                      Send Invite
-                    </button>
+                      <option value="">Select a job...</option>
+                      {activeJobs.map((j) => (
+                        <option key={j.id} value={j.id}>
+                          {j.title} ({j.companyName})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="flex justify-end gap-2 pt-1">
+                      <button
+                        onClick={() => setShowInviteMenu(false)}
+                        className="px-2.5 py-1.5 text-xs text-[#667085] hover:bg-[#F7F8FA] rounded-lg cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleInvite}
+                        disabled={!inviteJobId}
+                        className="px-3.5 py-1.5 text-xs font-bold bg-[#FF2B1A] hover:bg-[#e02213] text-white rounded-xl disabled:opacity-50 cursor-pointer shadow-xs transition-colors"
+                      >
+                        Send Invite
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
